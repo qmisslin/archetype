@@ -11,6 +11,7 @@ There are three default roles in the API:
 
 # File organization
 
+```text
 .
 ├── .htaccess
 ├── index.php
@@ -39,6 +40,7 @@ There are three default roles in the API:
     ├── database.sql
     ├── uploads/
     └── logs/
+```
 
 Below is the expected file organization on the server.
 
