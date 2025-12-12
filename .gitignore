@@ -1,0 +1,21 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# PHP
+vendor/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Logs / runtime
+data/logs/
+data/uploads/
+*.log
+
+# SQLite database
+data/database.sql
