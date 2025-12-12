@@ -1,5 +1,3 @@
-# README.md
-
 # Archetype
 
 Archetype is a PHP-based headless CMS designed around a schema-driven API.
