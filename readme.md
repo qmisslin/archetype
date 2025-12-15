@@ -64,6 +64,13 @@ See `specs.md` for the full architecture and API documentation.
     > **Note for Local Testing (SQLite):** For quick local setup, ensure your `.env` is configured to use SQLite:
     > ```ini
     > DB_TYPE=SQLITE
+    > DB_FILEPATH=data/database.sql
+    > # Note: The following variables are ignored when DB_TYPE=SQLITE:
+    > # DB_HOST=
+    > # DB_PORT=
+    > # DB_NAME=
+    > # DB_USER=
+    > # DB_PASS=
     > ```
 
 ---
