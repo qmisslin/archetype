@@ -14,5 +14,7 @@
             "Archetype\\Core\\": "core/"
         }
     },
-    "require": {}
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
 }
