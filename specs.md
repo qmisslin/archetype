@@ -147,7 +147,7 @@ The database stores several tables:
 Loads the environment file for the following values:
 
 ```ini
-DB_TYPE=SQLITE | MYSQL | POSTGRES # Database driver type (always required)
+DB_TYPE=SQLITE | MYSQL # Database driver type (always required)
 DB_HOST= # Hostname or IP (Required if DB_TYPE is not SQLITE)
 DB_PORT= # Port number (Required if DB_TYPE is not SQLITE)
 DB_NAME= # Database name on server (Required if DB_TYPE is not SQLITE)
