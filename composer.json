@@ -1,0 +1,18 @@
+{
+    "name": "archetype/api",
+    "description": "Archetype is a PHP-based headless CMS designed around a schema-driven API.",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Quentin Misslin",
+            "email": "qmisslin@users.noreply.github.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Archetype\\Core\\": "core/"
+        }
+    },
+    "require": {}
+}
