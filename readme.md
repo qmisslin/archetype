@@ -31,6 +31,60 @@ See `specs.md` for the full architecture and API documentation.
   - Entries lifecycle and search AST  
   - Uploads, logs, trackers, and email services  
 
+
+---
+## Getting Started
+
+### Prerequisites
+
+* PHP (v8.0 or newer recommended)
+* Composer
+* Git
+
+### Project Setup
+
+1.  **Clone the repository:**
+    ```bash
+    git clone [your-repo-url]
+    cd archetype-api
+    ```
+
+2.  **Install PHP dependencies:**
+    ```bash
+    composer install
+    ```
+
+3.  **Configure Environment Variables:**
+    Create your actual environment file by copying the example:
+    ```bash
+    cp .env.example .env
+    ```
+    Then, edit the `.env` file and fill in the necessary configuration (database type, credentials, email settings, etc.).
+    
+    > **Note for Local Testing (SQLite):** For quick local setup, ensure your `.env` is configured to use SQLite:
+    > ```ini
+    > DB_TYPE=SQLITE
+    > DB_NAME=database.sql
+    > ```
+
+---
+
+### Local Development Server
+
+The simplest way to run the API locally is by using PHP's built-in web server.
+
+1.  **Start the server:**
+    Run this command from the project root directory:
+    ```bash
+    php -S localhost:8080 -t .
+    ```
+
+2.  **Access the API:**
+    The API is now running at `http://localhost:8080`.
+
+    * **Root check:** `curl http://localhost:8080/`
+    * **Route check (404 expected):** `curl http://localhost:8080/api/nonexistent`
+
 ---
 
 ## Status
