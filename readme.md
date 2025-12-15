@@ -7,7 +7,7 @@ The API is role-based (`ADMIN`, `EDITOR`, `PUBLIC`) and uses token authenticatio
 All content is validated against versioned schemas and stored as JSON.
 
 This repository currently contains:
-- `spec.md`: the full functional and technical specification of the API
+- `specs.md`: the full functional and technical specification of the API
 - the expected project structure for a future implementation
 
 This project is intended to be:
@@ -39,11 +39,14 @@ See `specs.md` for the full architecture and API documentation.
 - No implementation yet  
 - Development roadmap defined in [Development checklist](./checklist.md)  
   - Structured, step-by-step plan to implement the project  
-  - Covers bootstrap, logging, core features, security, and hardening
-
+  - Covers bootstrap, logging, core features, security, and hardening  
 
 ---
 
 ## License
 
-To be defined.
+This project is licensed under the **MIT License**.
+
+You are free to use, modify, distribute, and integrate this software in both open-source and commercial projects, with minimal restrictions.
+
+See [LICENSE.md](./LICENSE.md) for full license text.
