@@ -6,9 +6,9 @@
 - [x] Add `.env` + `.gitignore` (e.g. ignore `/data/*` except placeholders)
 
 ### 1) Minimal runtime core
-- [ ] `core/Env.php`: load and validate environment variables (`Init()`)
-- [ ] JSON API helper (responses, errors, HTTP status codes)
-- [ ] Minimal router for `api/*` (dispatch, HTTP method, JSON/multipart body)
+- [x] `core/Env.php`: load and validate environment variables (`Init()`)
+- [x] JSON API helper (responses, errors, HTTP status codes)
+- [x] Minimal router for `api/*` (dispatch, HTTP method, JSON/multipart body)
 
 ### 2) Database + Logs first
 - [ ] `core/Database.php`: SQLite connection + create `/data/database.sql` if missing
