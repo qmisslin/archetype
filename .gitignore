@@ -13,9 +13,15 @@ vendor/
 !.env.example
 
 # Logs / runtime
-data/logs/
-data/uploads/
+# Ignore log contents, but keep the directory (if a .gitkeep exists)
+data/logs/*
+!data/logs/.gitkeep
 *.log
+
+# Uploads
+# Ignore contents, but keep the directory
+data/uploads/*
+!data/uploads/.gitkeep
 
 # SQLite database
 data/database.sql
