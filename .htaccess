@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Specifications: protected access to ./data and ./core
+# Returns a 403 Forbidden error when attempting to access these directories directly
+RewriteRule ^(core|data)/ - [F,L]
+
+# Optional but recommended configuration for an API:
+# Prevent directory listing
+Options -Indexes
