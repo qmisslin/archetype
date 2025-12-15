@@ -17,16 +17,30 @@ This project is intended to be:
 
 ---
 
-## Repository structure (target)
+## Documentation
 
-See `spec.md` for the full architecture and API documentation.
+See `specs.md` for the full architecture and API documentation.
+
+- [Full API specifications](./specs.md)  
+  - Overall architecture and file organization  
+  - Environment and configuration  
+  - Database schema and relations  
+  - Authentication, roles, and permissions model  
+  - Detailed API routes (inputs, outputs, roles)  
+  - Data schemes and validation rules  
+  - Entries lifecycle and search AST  
+  - Uploads, logs, trackers, and email services  
 
 ---
 
 ## Status
 
-Specification only.  
-No implementation yet.
+- Specification phase only  
+- No implementation yet  
+- Development roadmap defined in [Development checklist](./checklist.md)  
+  - Structured, step-by-step plan to implement the project  
+  - Covers bootstrap, logging, core features, security, and hardening
+
 
 ---
 
