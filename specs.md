@@ -147,18 +147,23 @@ The database stores several tables:
 Loads the environment file for the following values:
 
 ```ini
-DB_TYPE=SQLITE
-DB_HOST=
-DB_PORT=
-DB_NAME=
-DB_USER=
-DB_PASS=
+DB_TYPE=SQLITE | MYSQL | POSTGRES # Database driver type (always required)
+DB_HOST= # Hostname or IP (Required if DB_TYPE is not SQLITE)
+DB_PORT= # Port number (Required if DB_TYPE is not SQLITE)
+DB_NAME= # Database name on server (Required if DB_TYPE is not SQLITE)
+DB_FILEPATH= # Local path to the SQLite file (Required if DB_TYPE=SQLITE, default: data/database.sql)
+DB_USER= # Database username (Required if DB_TYPE is not SQLITE)
+DB_PASS= # Database password (Required if DB_TYPE is not SQLITE)
 EMAIL_USER=
 EMAIL_PASS=
 ````
 
 `Init()`
-Loads environment variables.
+Loads environment variables. Conditional validation is applied:
+
+  * `DB_TYPE` and email variables (`EMAIL_USER`, `EMAIL_PASS`) are always required.
+  * If `DB_TYPE=SQLITE`, then `DB_FILEPATH` is required. All other `DB_*` variables are optional/ignored.
+  * If `DB_TYPE` is not `SQLITE` (e.g., `MYSQL`), then `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASS` are required.
 
 ---
 
