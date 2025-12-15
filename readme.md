@@ -64,7 +64,6 @@ See `specs.md` for the full architecture and API documentation.
     > **Note for Local Testing (SQLite):** For quick local setup, ensure your `.env` is configured to use SQLite:
     > ```ini
     > DB_TYPE=SQLITE
-    > DB_NAME=database.sql
     > ```
 
 ---
