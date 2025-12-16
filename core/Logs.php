@@ -377,9 +377,8 @@ class Logs
 
         foreach ($logs as $log) {
             if (!file_exists($root . $log['logfile'])) {
-                // If file is missing, we clear the stats (or we could delete the entry)
-                // Specs say "delete stats related to a log file that has been deleted"
-                $stmt = $db->prepare("UPDATE LOGS SET stats = NULL WHERE id = ?");
+                // If file is missing, we delete the entry entirely from the DB
+                $stmt = $db->prepare("DELETE FROM LOGS WHERE id = ?");
                 $stmt->execute([$log['id']]);
                 $count++;
             }
