@@ -109,7 +109,8 @@ class Logs
             'level' => 'info',
             'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             'method' => $method,
-            'path' => $path,
+            // MODIFICATION: Clean path (strip query params)
+            'path' => parse_url($path, PHP_URL_PATH),
             'status' => $status,
             'duration_ms' => $durationMs,
             'tid' => $tid, // Tracking ID
@@ -131,7 +132,7 @@ class Logs
             'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             'message' => $message,
             'category' => $category,
-            'path' => $_SERVER['REQUEST_URI'] ?? null,
+            'path' => parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH),
             'tid' => $tid
         ]);
     }
@@ -147,7 +148,7 @@ class Logs
             'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             'message' => $message,
             'category' => $category,
-            'path' => $_SERVER['REQUEST_URI'] ?? null,
+            'path' => parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH),
             'tid' => $tid,
         ];
 
