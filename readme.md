@@ -82,7 +82,7 @@ The simplest way to run the API locally is by using PHP's built-in web server.
 1.  **Start the server:**
     Run this command from the project root directory:
     ```bash
-    php -S localhost:8080 -t .
+    php -S localhost:8080 index.php
     ```
 
 2.  **Access the API:**

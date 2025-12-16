@@ -11,8 +11,8 @@
 - [x] Minimal router for `api/*` (dispatch, HTTP method, JSON/multipart body)
 
 ### 2) Database + Logs first
-- [ ] `core/Database.php`: SQLite connection + create `/data/database.sql` if missing
-- [ ] `core/Database.php`: create minimal tables **LOGS** (+ optionally USERS/TOKENS if needed)
+- [x] `core/Database.php`: SQLite connection + create `/data/database.sql` if missing
+- [x] `core/Database.php`: create minimal tables **LOGS** (+ optionally USERS/TOKENS if needed)
 - [ ] Create `/data/logs/` + permissions
 - [ ] `core/Logs.php`: `getCurrent()` + create LOGS entry + create empty `.log` file
 - [ ] `core/Logs.php`: `message(type, content)` (append JSONL)

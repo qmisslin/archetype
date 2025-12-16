@@ -1,28 +1,63 @@
 <?php
 
-// Load Composer autoload
+// Automatic class loading (Composer)
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Archetype\Core\Env;
 use Archetype\Core\Router;
 use Archetype\Core\APIHelper;
+use Archetype\Core\Logs;
 
-// 1. Load Environment Variables
-Env::Init();
+// Environment initialization
+try {
+    Env::Init();
+} catch (\Throwable $e) {
+    APIHelper::error('Environment Error: ' . $e->getMessage(), 500);
+}
 
-// 2. Initialize Router
+// Global Middleware (Logs & Timer)
+// Capture everything that happens from this point
+$startTime = microtime(true);
+ob_start();
+
+// Extract TID from query string if exists
+$tid = null;
+if (!empty($_SERVER['REQUEST_URI'])) {
+    $query = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
+    if ($query) {
+        parse_str($query, $params);
+        if (isset($params['tid']) && is_string($params['tid']) && $params['tid'] !== '') {
+            $tid = $params['tid'];
+        }
+    }
+}
+
+register_shutdown_function(function () use ($startTime, $tid) {
+    $duration = (int)((microtime(true) - $startTime) * 1000);
+    $status = http_response_code();
+    $bytes = ob_get_length() ?: 0; // Response size
+    $method = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
+    $path = $_SERVER['REQUEST_URI'] ?? '/';
+
+    // Log the request if the Logs class is available
+    if (class_exists(Logs::class)) {
+        Logs::logRequest($method, $path, $status, $duration, $bytes, $tid);
+    }
+    
+    // Send the output buffer to the browser
+    if (ob_get_length()) {
+        ob_end_flush();
+    }
+});
+
+// Global fatal error handling
+set_exception_handler(function (\Throwable $e) {
+    Logs::error('system', 'Uncaught exception', $e);
+    ob_clean();
+    APIHelper::error("Internal Server Error", 500);
+});
+
+// Routing
+// This is where the magic happens: delegation to the Router
 $router = new Router();
-
-// 3. Dispatch API calls (e.g. /api/...)
-// The public front (index.php) primarily serves the API
-$router->dispatch('api');
-
-// If the request was not an API call (e.g. /),
-// This is where you would place the application's non-API-related rendering logic.
-// For a headless CMS, this might just serve a basic HTML shell or be empty.
-// For now, we'll confirm that non-API requests are handled.
-// Note: In a pure API context, this file might just exist to dispatch.
-APIHelper::success(['message' => 'Archetype API is running. Use /api/... routes to access resources.']);
-
-// Optional: Fallback for serving the HTML front for public visitors if needed
-// echo file_get_contents('public-html/index.html');
+$router->dispatch();

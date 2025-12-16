@@ -1,9 +1,15 @@
+# Enabling the URL rewriting engine
 RewriteEngine On
 
-# Specifications: protected access to ./data and ./core
-# Returns a 403 Forbidden error when attempting to access these directories directly
-RewriteRule ^(core|data)/ - [F,L]
+# --- SÉCURITY ---
+RewriteRule ^data/ - [F,L]
+RewriteRule ^core/ - [F,L]
+RewriteRule ^\.env - [F,L]
 
-# Optional but recommended configuration for an API:
-# Prevent directory listing
-Options -Indexes
+# --- ROUTING (Front Controller) ---
+# If the requested file is NOT an existing file (!-f)
+RewriteCond %{REQUEST_FILENAME} !-f
+# and is NOT an existing directory (!-d)
+RewriteCond %{REQUEST_FILENAME} !-d
+# then rewrite to index.php with url parameters appended
+RewriteRule ^ index.php [QSA,L]
