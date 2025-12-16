@@ -23,19 +23,19 @@ class Logs
      */
     public static function getCurrent(): array
     {
-        // 1. Ensure directory exists
+        // Ensure directory exists
         $root = dirname(__DIR__, 1);
         $dir = $root . '/' . self::LOG_DIR;
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
 
-        // 2. Get most recent entry from DB
+        // Get most recent entry from DB
         $db = Database::get();
         $stmt = $db->query("SELECT id, logfile FROM LOGS ORDER BY timestamp DESC LIMIT 1");
         $lastLog = $stmt->fetch();
 
-        // 3. Check file existence and size
+        // Check file existence and size
         if ($lastLog) {
             $filePath = $dir . $lastLog['logfile'];
             if (file_exists($filePath)) {
@@ -47,7 +47,7 @@ class Logs
             }
         }
 
-        // 4. Create new if missing or full
+        // Create new if missing or full
         return self::rotate();
     }
 
@@ -109,11 +109,10 @@ class Logs
             'level' => 'info',
             'ip' => $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0',
             'method' => $method,
-            // MODIFICATION: Clean path (strip query params)
             'path' => parse_url($path, PHP_URL_PATH),
             'status' => $status,
             'duration_ms' => $durationMs,
-            'tid' => $tid, // Tracking ID
+            'tid' => $tid,
             'ua' => $_SERVER['HTTP_USER_AGENT'] ?? null,
             'referer' => $_SERVER['HTTP_REFERER'] ?? null,
             'bytes' => $bytes
