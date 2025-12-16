@@ -95,11 +95,17 @@ The simplest way to run the API locally is by using PHP's built-in web server.
 
 ## Status
 
-- Specification phase only  
-- No implementation yet  
-- Development roadmap defined in [Development checklist](./checklist.md)  
-  - Structured, step-by-step plan to implement the project  
-  - Covers bootstrap, logging, core features, security, and hardening  
+**Under Active Development**
+
+Core architecture is implemented. Work is currently focused on User Authentication and Security layers.
+
+- [x] **Core Architecture** (Front Controller, Router, Middleware)
+- [x] **Database Layer** (Auto-setup, SQLite/MySQL support)
+- [x] **Logging System** (Rotation, Database tracking, Error handling)
+- [ ] User Authentication & Token Management
+- [ ] API Endpoints Implementation
+
+See [Development checklist](./checklist.md) for the detailed roadmap.
 
 ---
 
