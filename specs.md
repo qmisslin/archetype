@@ -204,7 +204,7 @@ Downloads a log file.
 Deletes a log file.
 
 `purge()`
-Deletes all statistics related to a log file that has been deleted.
+Delete all database entries related to a log file that has been deleted.
 
 `getCurrent()`
 Retrieves the most recent entry from the `LOGS` table (based on creation date).
