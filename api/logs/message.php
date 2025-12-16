@@ -1,0 +1,27 @@
+<?php
+
+use Archetype\Core\APIHelper;
+use Archetype\Core\Logs;
+
+/** @var Archetype\Core\Router $this */
+
+// Retrieve data
+$body = $this->getBody();
+$type = $body['type'] ?? 'INF';
+
+// Basic validation
+$allowedTypes = ['INF', 'WRN', 'ERR'];
+// If the type is not allowed (e.g. REQ), force it to INF
+if (!in_array($type, $allowedTypes)) {
+    $type = 'INF';
+}
+
+// Content cleanup
+// IMPORTANT: Remove 'type' from the body to prevent it from overriding the validated value during merge
+unset($body['type']);
+$content = $body;
+
+// Write log
+Logs::message($type, $content);
+
+APIHelper::success(['message' => 'Log saved']);
