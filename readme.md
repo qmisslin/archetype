@@ -8,7 +8,8 @@ All content is validated against versioned schemas and stored as JSON.
 
 This repository currently contains:
 - `specs.md`: the full functional and technical specification of the API
-- the expected project structure for a future implementation
+- The core implementation of the framework
+- A developer dashboard for testing purposes
 
 This project is intended to be:
 - framework-agnostic
@@ -78,32 +79,34 @@ See `specs.md` for the full architecture and API documentation.
 ### Local Development Server
 
 The simplest way to run the API locally is by using PHP's built-in web server.
+We use a specific router script (`router_dev.php`) to simulate the production `.htaccess` behavior (security rules and URL rewriting).
 
 1.  **Start the server:**
     Run this command from the project root directory:
     ```bash
-    php -S localhost:8080 index.php
+    php -S localhost:8080 router_dev.php
     ```
 
 2.  **Access the API:**
-    The API is now running at `http://localhost:8080`.
+    The server is now running at `http://localhost:8080`.
 
-    * **Root check:** `curl http://localhost:8080/`
-    * **Route check (404 expected):** `curl http://localhost:8080/api/nonexistent`
+    * **Dev Dashboard:** `http://localhost:8080/` (Interface to test logs and stats)
+    * **Direct API Access:** `http://localhost:8080/api/logs/get`
+    * **Security check (403 expected):** `http://localhost:8080/core/Boot.php`
 
 ---
 
 ## Status
 
-**Under Active Development**
+** Under Active Development **
 
 Core architecture is implemented. Work is currently focused on User Authentication and Security layers.
 
-- [x] **Core Architecture** (Front Controller, Router, Middleware)
+- [x] **Core Architecture** (Bootstrap Pattern, Router Helper, Middleware)
 - [x] **Database Layer** (Auto-setup, SQLite/MySQL support)
-- [x] **Logging System** (Rotation, Database tracking, Error handling)
+- [x] **Logging System** (Rotation, Database tracking, Stats computation, API Routes)
 - [ ] User Authentication & Token Management
-- [ ] API Endpoints Implementation
+- [ ] API Endpoints Implementation (Entries, Schemes, etc.)
 
 See [Development checklist](./checklist.md) for the detailed roadmap.
 
