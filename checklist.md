@@ -2,37 +2,36 @@
 
 ### 0) Project bootstrap
 - [x] Create the directory structure (`api/`, `core/`, `data/`, etc.)
-- [x] Add `.htaccess`: deny access to `/data` and `/core`, public access to the rest (handled by PHP)
-- [x] Add `.env` + `.gitignore` (e.g. ignore `/data/*` except placeholders)
+- [x] Add `.htaccess`: deny access to `/data` and `/core`, rewrite rules for API
+- [x] Add `.env` + `.gitignore`
 
 ### 1) Minimal runtime core
 - [x] `core/Env.php`: load and validate environment variables (`Init()`)
-- [x] JSON API helper (responses, errors, HTTP status codes)
-- [x] Minimal router for `api/*` (dispatch, HTTP method, JSON/multipart body)
+- [x] `core/APIHelper.php`: standardized JSON responses and error handling
+- [x] `core/Boot.php` & `core/Router.php`: Bootstrap architecture + Request helper
+- [x] `router_dev.php`: Routing script for local development
 
-### 2) Database + Logs first
-- [x] `core/Database.php`: SQLite connection + create `/data/database.sql` if missing
-- [x] `core/Database.php`: create minimal tables **LOGS** (+ optionally USERS/TOKENS if needed)
-- [ ] Create `/data/logs/` + permissions
-- [ ] `core/Logs.php`: `getCurrent()` + create LOGS entry + create empty `.log` file
-- [ ] `core/Logs.php`: `message(type, content)` (append JSONL)
-- [ ] Automatic logging middleware on **all** `/api/*` routes:
-  - [ ] write a `REQ` line (method/path/status/duration/ip/ua/referer/bytes/tid)
-  - [ ] expose helpers for `INF/WRN/ERR` (category, message, stack_hash on exception)
-- [ ] Log rotation handling (if > 3MB): compute stats + new DB entry + new file
-- [ ] Logs routes (for early debugging):
-  - [ ] `[PUBLIC]` `POST /api/logs/message`
-  - [ ] `[ADMIN][EDITOR]` `GET /api/logs/get` (+ date filters)
-  - [ ] `[ADMIN][EDITOR]` `GET /api/logs/range`
-  - [ ] `[ADMIN][EDITOR]` `POST /api/logs/compute`
-  - [ ] `[ADMIN]` `GET /api/logs/download`, `DELETE /api/logs/remove`, `POST /api/logs/purge`
+### 2) Database & Logs System
+- [x] `core/Database.php`: SQLite/MySQL connection + Auto-create tables
+- [x] `core/Logs.php`: Rotation logic, JSONL writing, and Stats computation (`compute`)
+- [x] Global Logging Middleware (in `Boot.php`)
+- [x] **Logs API Routes** (Implementation complete, Security pending):
+  - [x] `POST /api/logs/message` (Public)
+  - [x] `GET /api/logs/get` & `range` (Admin/Editor)
+  - [x] `POST /api/logs/compute` (Admin/Editor)
+  - [x] `GET /api/logs/download` (Admin)
+  - [x] `DELETE /api/logs/remove` & `POST /api/logs/purge` (Admin)
 
-### 3) Minimal auth (to secure non-PUBLIC endpoints)
-- [ ] Tables **USERS**, **TOKENS**, **ATTEMPTS** (if not already created)
-- [ ] Auth helper: token extraction, expiration check, user/role resolution, route guards
-- [ ] `core/Attempts.php`: `get/set/delete/list` + delay/blocking logic
-- [ ] `core/Users.php`: `CreateAdminUser`, `Login`, `Logout`, `PruneTokens` (minimum viable)
-- [ ] Systematic logging of auth errors (WRN) without leaking sensitive information
+### 3) Authentication & Security (Current Focus)
+- [ ] **Database**: Verify tables `USERS`, `TOKENS`, `ATTEMPTS` creation
+- [ ] `core/Attempts.php`: Brute-force protection (get/set/delete/list)
+- [ ] `core/Users.php`: User management logic (Create, Login, Logout, PruneTokens)
+- [ ] **Auth Middleware/Helper**:
+  - [ ] Token extraction & validation
+  - [ ] Role resolution (`ADMIN`, `EDITOR`, `PUBLIC`)
+- [ ] **Secure Endpoints**:
+  - [ ] Update `api/logs/*` to replace `TODO` with actual `Auth::check(['ADMIN'])`
+  - [ ] Ensure systematic logging of auth failures
 
 ### 4) Email (reset + admin bootstrap)
 - [ ] `core/Email.php`: `Send(dest[], obj, type, content)`
@@ -40,38 +39,32 @@
 - [ ] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
 
 ### 5) Schemes
-- [ ] `core/Schemes.php`: `create/remove/rename/list/get`
-- [ ] `core/Schemes.php`: `addField/removeField/rekeyField/updateField/indexField`
-- [ ] Version handling + entry migrations (`removeField` / `rekeyField`)
+- [ ] `core/Schemes.php`: CRUD operations on JSON schemas
+- [ ] `core/Schemes.php`: Field management (add/remove/rekey/update)
+- [ ] Version handling + entry migrations
 - [ ] Logs: every schema mutation -> `INF` (schemeId, version, userId)
 
 ### 6) Entries
-- [ ] `core/Entries.php`: `Create/Edit/Remove/Duplicate`
-- [ ] Data validation against schema (types, required, is-array, rules)
-- [ ] `List/GetById` with `access` filtering based on token/role
-- [ ] `Search` AST (whitelist) + logging of slow/invalid queries
+- [ ] `core/Entries.php`: CRUD operations for content
+- [ ] Data validation engine (validate input against Scheme rules)
+- [ ] Access control: filter fields based on user role
+- [ ] `Search` AST: Implement JSON-based search syntax (whitelist)
 
 ### 7) Uploads
-- [ ] `core/Uploads.php`: `create/upload/replace/remove/edit/list/get`
-- [ ] Storage in `/data/uploads/` + mime/extension/size checks + anti-traversal
-- [ ] Access control via `access[]`
-- [ ] Logs: upload/replace/remove + anomalies (unexpected mime, size, access)
+- [ ] `core/Uploads.php`: File management & Virtual folders
+- [ ] Storage security: mime/extension checks + path traversal prevention
+- [ ] Access control: serve files based on `access[]` rules
+- [ ] API Routes: upload, replace, list, get
 
 ### 8) Trackers
-- [ ] `core/Trackers.php`: `List/Create/Edit/Delete`
-- [ ] Routes `/api/trackers/*` (ADMIN/EDITOR)
+- [ ] `core/Trackers.php`: CRUD operations
+- [ ] API Routes: `/api/trackers/*`
 
-### 9) Logs statistics (hardening)
-- [ ] `compute(logId, logFileName)`: recompute stats (global/status/path/tid/timeline)
-- [ ] `purge()`: clean stats entries without a file
-- [ ] Tests: tolerant JSONL parsing (invalid lines), performance on large files
+### 9) Frontends (Bootstrap)
+- [x] `index.php` & `logs.html`: Developer Dashboard (Logs UI)
+- [ ] `admin.php`: Main Admin Panel (Login + Schema/Content management)
 
-### 10) Fronts (bootstrap)
-- [ ] `index.php`: example API consumption (PUBLIC)
-- [ ] `admin.php`: admin bootstrap (login + API calls)
-- [ ] No UI rendering in `core/` or `api/`
-
-### 11) Quality & tests
-- [ ] Unit tests: schema/entry validation, AST, attempts, tokens, log parsing/stats
-- [ ] Integration tests: routes + roles + automatic logging on each request
-- [ ] Documentation: auth, routes, JSONL log format, stats, rotation
+### 10) Quality & Tests
+- [ ] Unit tests: schema validation, AST logic, log parsing
+- [ ] Integration tests: full route testing with Auth
+- [ ] Documentation: Update `specs.md` with final implementation details
