@@ -11,11 +11,13 @@ There are three default roles in the API:
 
 # File organization
 
+
 ```text
 .
 ├── .htaccess
+├── router_dev.php
 ├── index.php
-├── admin.php
+├── logs.html
 ├── api/
 │   ├── logs/
 │   ├── trackers/
@@ -26,6 +28,7 @@ There are three default roles in the API:
 │   ├── schemes/
 │   └── entries/
 ├── core/
+│   ├── Boot.php
 │   ├── Env.php
 │   ├── Database.php
 │   ├── Logs.php
@@ -35,7 +38,9 @@ There are three default roles in the API:
 │   ├── Users.php
 │   ├── Uploads.php
 │   ├── Schemes.php
-│   └── Entries.php
+│   ├── Entries.php
+│   ├── Router.php
+│   └── APIHelper.php
 └── data/
     ├── database.sql
     ├── uploads/
@@ -44,26 +49,26 @@ There are three default roles in the API:
 
 Below is the expected file organization on the server.
 
-At the server root, you can find all PHP view files:
-- `./`: PHP code for public pages and other pages are at the root
-- `./index.php`: PHP code used to display the public front (API calls to retrieve resources)
-- `./admin.php`: PHP code used to display the administration interface front (CORE API calls to retrieve resources)
+At the server root:
+  - `./`: PHP code for public pages
+  - `./index.php` & `./logs.html`: Developer dashboard and tools to test the API
+  - `./router_dev.php`: Routing script for local development (simulates .htaccess)
 
 In the `./core` directory, you can find all code related to server management:
-- `./core/`: API classes and their methods (accessible directly from PHP)
+  - `./core/Boot.php`: The bootstrap file included by all API endpoints to initialize Env, Cors and Autoload.
+  - `./core/`: API classes and their methods.
 
 In the `./api` directory, you can find all PHP API routes:
-- `./api/`: routes allowing access to CORE classes and methods through HTTP(S) requests
+  - `./api/`: Independent PHP scripts acting as endpoints (loading `Boot.php` first).
 
 In the `./data` directory, you can find the database and all uploaded files stored on the server:
-- `./data/database.sql`: the SQLite database
-- `./data/uploads/`: all files uploaded to the server
-- `./data/logs`: all server log files
+  - `./data/database.sql`: the SQLite database
+  - `./data/uploads/`: all files uploaded to the server
+  - `./data/logs`: all server log files
 
 The `.htaccess` at the server root must have the following specifications:
-- protected access to `./data` (only accessible from PHP scripts)
-- protected access to `./core` (only accessible from PHP scripts)
-- public access to the rest (with access restrictions depending on pages, handled by PHP code)
+  - protected access to `./data`, `./core`, `./vendor`
+  - URL rewriting to serve `./api/path/to/resource.php` when accessing `/api/path/to/resource` (hiding extensions)
 
 ---
 
