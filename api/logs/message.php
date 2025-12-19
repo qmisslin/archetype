@@ -1,12 +1,13 @@
 <?php
+require_once __DIR__ . '/../../core/Boot.php';
 
 use Archetype\Core\APIHelper;
 use Archetype\Core\Logs;
 
-/** @var Archetype\Core\Router $this */
+/** @var Archetype\Core\Router $router */
 
 // Retrieve data
-$body = $this->getBody();
+$body = $router->getBody();
 $type = $body['type'] ?? 'INF';
 
 // Basic validation

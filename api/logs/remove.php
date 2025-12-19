@@ -1,13 +1,14 @@
 <?php
+require_once __DIR__ . '/../../core/Boot.php';
 
 use Archetype\Core\APIHelper;
 use Archetype\Core\Logs;
 
-/** @var Archetype\Core\Router $this */
+/** @var Archetype\Core\Router $router */
 
 // TODO: Add Auth check (ADMIN) here
 
-$params = $this->getBody();
+$params = $router->getBody();
 $filename = $params['filename'] ?? '';
 
 if (Logs::remove($filename)) {
