@@ -23,26 +23,31 @@ class Env
         $dotenv = Dotenv::createImmutable($rootPath);
         $dotenv->safeLoad();
 
-        // --- Core Validation ---
-
-        // 1. Email variables are always required
+        // SMTP variables are always required
         $dotenv->required([
-            'EMAIL_USER',
-            'EMAIL_PASS',
+            'SMTP_USER',
+            'SMTP_PASS',
+            'SMTP_HOST',
+            'SMTP_PORT',
+            'SMTP_SECURE',
         ])->notEmpty();
 
-        // 2. DB_TYPE is always required and must be one of the supported types.
+        // Validate SMTP_SECURE allowed values
+        $dotenv->required('SMTP_SECURE')
+            ->allowedValues(['tls', 'ssl', 'none']);
+
+        // DB_TYPE is always required and must be one of the supported types
         $dotenv->required('DB_TYPE')
-               ->notEmpty()
-               ->allowedValues(['SQLITE', 'MYSQL', 'POSTGRES']);
-        
+            ->notEmpty()
+            ->allowedValues(['SQLITE', 'MYSQL', 'POSTGRES']);
+
         $dbType = $_ENV['DB_TYPE'] ?? null;
 
-        // 3. Conditional DB validation based on DB_TYPE
+        // Conditional DB validation based on DB_TYPE
         if ($dbType === 'SQLITE') {
-            // For SQLite, only the file path is required.
+            // For SQLite, only the file path is required
             $dotenv->required('DB_FILEPATH')->notEmpty();
-        } else if ($dbType === 'MYSQL' || $dbType === 'POSTGRES') {
+        } elseif ($dbType === 'MYSQL' || $dbType === 'POSTGRES') {
             // For server-based DBs, connection details are required
             $dotenv->required([
                 'DB_HOST',
