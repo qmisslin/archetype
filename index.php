@@ -6,6 +6,7 @@
     <title>Archetype</title>
 </head>
 <body>
-    <a href="./logs.html">Logs dashboard</a>
+    <a href="./logs.html">Logs dashboard</a><br>
+    <a href="./mails.html">Mails dashboard</a><br>
 </body>
 </html>
