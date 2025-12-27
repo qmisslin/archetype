@@ -23,8 +23,8 @@
   - [x] `DELETE /api/logs/remove` & `POST /api/logs/purge` (Admin)
 
 ### 3) Email (reset + admin bootstrap)
-- [ ] `core/Email.php`: `Send(dest[], obj, type, content)`
-- [ ] Route `/api/email/send` (ADMIN/EDITOR)
+- [x] `core/Email.php`: `Send(dest[], obj, type, content)`
+- [x] Route `/api/email/send` (ADMIN/EDITOR)
 - [ ] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
 
 ### 4) Authentication & Security (Current Focus)
