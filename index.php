@@ -8,5 +8,6 @@
 <body>
     <a href="./logs.html">Logs dashboard</a><br>
     <a href="./mails.html">Mails dashboard</a><br>
+    <a href="./users.html">Users dashboard</a><br>
 </body>
 </html>

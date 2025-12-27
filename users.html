@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Management Test</title>
+    <style>
+        body { font-family: monospace; background: #f4f4f4; color: #333; display: flex; height: 100vh; margin: 0; }
+        aside { width: 300px; background: #fff; border-right: 1px solid #ccc; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        main { flex: 1; padding: 20px; display: flex; flex-direction: column; }
+        .group { border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; background: #fafafa; }
+        .group h3 { margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; color: #666; }
+        input { width: 100%; padding: 5px; margin-bottom: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 8px; background: #eee; border: 1px solid #999; cursor: pointer; }
+        button:hover { background: #ddd; }
+        pre { background: #222; color: #0f0; padding: 15px; flex: 1; overflow: auto; margin: 0; border: 1px solid #000; }
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="group">
+        <h3>1. Bootstrap</h3>
+        <button onclick="req('CreateAdminUser', 'POST', {})">Create Admin User</button>
+        <small style="display:block; margin-top:5px; color:#666;">Check emails/logs for token</small>
+    </div>
+
+    <div class="group">
+        <h3>2. Reset / Activate</h3>
+        <input type="text" id="reset_email" placeholder="Email (e.g. admin@example.com)">
+        <button onclick="req('ForgotPassword', 'POST', {email: v('reset_email')})">Request Reset Link</button>
+    </div>
+
+    <div class="group">
+        <h3>3. Change Password</h3>
+        <input type="text" id="chg_token" placeholder="Token (from email)">
+        <input type="text" id="chg_email" placeholder="Email">
+        <input type="text" id="chg_pass" placeholder="New Password">
+        <button onclick="req('ChangePassword', 'POST', {token: v('chg_token'), email: v('chg_email'), password: v('chg_pass')})">Set New Password</button>
+    </div>
+
+    <div class="group">
+        <h3>4. Login</h3>
+        <input type="text" id="login_email" placeholder="Email">
+        <input type="text" id="login_pass" placeholder="Password">
+        <button onclick="req('Login', 'POST', {email: v('login_email'), password: v('login_pass')})">Login</button>
+    </div>
+</aside>
+
+<main>
+    <h2>API Response Output</h2>
+    <pre id="output">Ready.</pre>
+</main>
+
+<script>
+    function v(id) { return document.getElementById(id).value; }
+    
+    async function req(endpoint, method, body) {
+        const out = document.getElementById('output');
+        out.textContent = "Loading...";
+        
+        try {
+            const res = await fetch('/api/users/' + endpoint, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const json = await res.json();
+            out.textContent = JSON.stringify(json, null, 2);
+            
+            // Helper: auto-fill login/change fields if email provided
+            if(body.email) {
+                if(document.getElementById('login_email').value === '') document.getElementById('login_email').value = body.email;
+                if(document.getElementById('chg_email').value === '') document.getElementById('chg_email').value = body.email;
+            }
+        } catch (e) {
+            out.textContent = "Error: " + e.message;
+        }
+    }
+</script>
+
+</body>
+</html>
