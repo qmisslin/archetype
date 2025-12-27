@@ -1,121 +1,241 @@
 # Archetype
 
-Archetype is a PHP-based headless CMS designed around a schema-driven API.
-It exposes content, users, files, and system operations exclusively through HTTP endpoints, without any built-in UI.
+Archetype is a PHP-based headless CMS designed around a schema-driven HTTP API.
+It exposes content, users, files, and system operations exclusively through endpoints, without any built-in UI.
 
-The API is role-based (`ADMIN`, `EDITOR`, `PUBLIC`) and uses token authentication.
-All content is validated against versioned schemas and stored as JSON.
+The API is role-based (`ADMIN`, `EDITOR`, `PUBLIC`) and relies on token authentication.
+All content is validated against versioned schemas and stored as structured data.
 
-This repository currently contains:
-- `specs.md`: the full functional and technical specification of the API
-- The core implementation of the framework
-- A developer dashboard for testing purposes
+This repository contains:
+- `specs.md`: the authoritative functional and technical specification
+- `checklist.md`: the active development roadmap
+- The core framework implementation
+- Internal developer tools for testing and debugging APIs
 
-This project is intended to be:
+Archetype is designed to be:
 - framework-agnostic
 - easy to self-host
 - suitable for custom admin panels and frontends
+- production-oriented with explicit configuration and validation
 
 ---
 
 ## Documentation
 
-See `specs.md` for the full architecture and API documentation.
+The project documentation is intentionally centralized and kept up to date.
 
-- [Full API specifications](./specs.md)  
-  - Overall architecture and file organization  
-  - Environment and configuration  
-  - Database schema and relations  
-  - Authentication, roles, and permissions model  
-  - Detailed API routes (inputs, outputs, roles)  
-  - Data schemes and validation rules  
-  - Entries lifecycle and search AST  
-  - Uploads, logs, trackers, and email services  
+- [`specs.md`](./specs.md)  
+  Complete architecture and API reference:
+  - Overall system design
+  - File organization
+  - Environment configuration
+  - Database schema and relations
+  - Authentication, roles, permissions
+  - API routes (inputs, outputs, access rules)
+  - Schema validation
+  - Entries lifecycle and search
+  - Uploads, logs, trackers, email services
 
-
----
-## Getting Started
-
-### Prerequisites
-
-* PHP (v8.0 or newer recommended)
-* Composer
-* Git
-
-### Project Setup
-
-1.  **Clone the repository:**
-    ```bash
-    git clone [your-repo-url]
-    cd archetype-api
-    ```
-
-2.  **Install PHP dependencies:**
-    ```bash
-    composer install
-    ```
-
-3.  **Configure Environment Variables:**
-    Create your actual environment file by copying the example:
-    ```bash
-    cp .env.example .env
-    ```
-    Then, edit the `.env` file and fill in the necessary configuration (database type, credentials, email settings, etc.).
-    
-    > **Note for Local Testing (SQLite):** For quick local setup, ensure your `.env` is configured to use SQLite:
-    > ```ini
-    > DB_TYPE=SQLITE
-    > DB_FILEPATH=data/database.sql
-    > # Note: The following variables are ignored when DB_TYPE=SQLITE:
-    > # DB_HOST=
-    > # DB_PORT=
-    > # DB_NAME=
-    > # DB_USER=
-    > # DB_PASS=
-    > ```
+- [`checklist.md`](./checklist.md)  
+  Living development roadmap, updated continuously as features are implemented.
 
 ---
 
-### Local Development Server
+## Requirements
 
-The simplest way to run the API locally is by using PHP's built-in web server.
-We use a specific router script (`router_dev.php`) to simulate the production `.htaccess` behavior (security rules and URL rewriting).
-
-1.  **Start the server:**
-    Run this command from the project root directory:
-    ```bash
-    php -S localhost:8080 router_dev.php
-    ```
-
-2.  **Access the API:**
-    The server is now running at `http://localhost:8080`.
-
-    * **Dev Dashboard:** `http://localhost:8080/` (Interface to test logs and stats)
-    * **Direct API Access:** `http://localhost:8080/api/logs/get`
-    * **Security check (403 expected):** `http://localhost:8080/core/Boot.php`
+- PHP 8.0 or newer
+- Composer
+- Git
+- A web server (Apache recommended)
 
 ---
 
-## Status
+## Installation
 
-** Under Active Development **
+### Clone the repository
 
-Core architecture is implemented. Work is currently focused on User Authentication and Security layers.
+```bash
+git clone <repository-url>
+cd archetype
+````
 
-- [x] **Core Architecture** (Bootstrap Pattern, Router Helper, Middleware)
-- [x] **Database Layer** (Auto-setup, SQLite/MySQL support)
-- [x] **Logging System** (Rotation, Database tracking, Stats computation, API Routes)
-- [ ] User Authentication & Token Management
-- [ ] API Endpoints Implementation (Entries, Schemes, etc.)
+### Install dependencies
 
-See [Development checklist](./checklist.md) for the detailed roadmap.
+```bash
+composer install
+```
+
+### Environment configuration
+
+Create your environment file:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and configure:
+
+* `APP_URL` (public base URL, used for emails and links)
+* Database settings
+* SMTP settings
+
+Example for a local SQLite setup:
+
+```ini
+APP_URL=http://127.0.0.1:8080
+
+DB_TYPE=SQLITE
+DB_FILEPATH=data/database.sql
+
+SMTP_USER=you@example.com
+SMTP_PASS=your_password
+SMTP_HOST=smtp.example.com
+SMTP_PORT=465
+SMTP_SECURE=ssl
+```
+
+---
+
+## Local Development Server (Apache / Homebrew)
+
+Archetype is designed to run behind a real web server.
+For local development on macOS, Apache via Homebrew provides a setup close to production behavior.
+
+### Install Apache
+
+```bash
+brew install httpd
+```
+
+### Start / Restart Apache
+
+Apache can be managed as a background service:
+
+```bash
+brew services start httpd
+brew services restart httpd
+brew services stop httpd
+```
+
+By default, Homebrew Apache listens on port `8080`.
+
+Verify it is running by opening:
+
+```
+http://127.0.0.1:8080
+```
+
+---
+
+### Apache Configuration
+
+Edit the main Apache configuration file:
+
+```bash
+nano /opt/homebrew/etc/httpd/httpd.conf
+```
+
+Ensure required modules are enabled:
+
+```apache
+LoadModule rewrite_module lib/httpd/modules/mod_rewrite.so
+```
+
+Enable `.htaccess` support:
+
+```apache
+<Directory "/opt/homebrew/var/www">
+    AllowOverride All
+    Require all granted
+</Directory>
+```
+
+Restart Apache after changes:
+
+```bash
+brew services restart httpd
+```
+
+---
+
+### Virtual Host Example
+
+Configure a virtual host pointing to the Archetype project directory:
+
+```apache
+<VirtualHost *:8080>
+    ServerName archetype.local
+    DocumentRoot "/path/to/archetype"
+
+    <Directory "/path/to/archetype">
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog "/opt/homebrew/var/log/httpd/archetype-error.log"
+    CustomLog "/opt/homebrew/var/log/httpd/archetype-access.log" combined
+</VirtualHost>
+```
+
+Restart Apache once configured:
+
+```bash
+brew services restart httpd
+```
+
+Update your `.env` accordingly:
+
+```ini
+APP_URL=http://archetype.local:8080
+```
+
+If no virtual host is used:
+
+```ini
+APP_URL=http://127.0.0.1:8080
+```
+
+---
+
+## Development Tools
+
+The repository includes internal HTML-based developer tools to test and inspect:
+
+* Logs
+* Email sending
+* API endpoints
+* Internal state
+
+These tools are **not intended for production exposure** and must only be enabled in controlled environments.
+
+---
+
+## Project Status
+
+Active development.
+
+Core infrastructure is in place. Current focus is on authentication, user lifecycle, and security-related features.
+
+High-level status:
+
+* [x] Core bootstrap and routing
+* [x] Environment validation
+* [x] Database layer (SQLite / MySQL)
+* [x] Logging system and API
+* [x] Email service
+* [ ] User authentication flows
+* [ ] Password reset and security hardening
+* [ ] Content entries and schemas
+* [ ] Permissions and access control refinement
+
+See [`checklist.md`](./checklist.md) for the detailed and up-to-date roadmap.
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**.
+MIT License.
 
-You are free to use, modify, distribute, and integrate this software in both open-source and commercial projects, with minimal restrictions.
+You are free to use, modify, and distribute this project in both open-source and commercial contexts.
 
-See [LICENSE.md](./LICENSE.md) for full license text.
+See [`LICENSE.md`](./LICENSE.md) for details.
