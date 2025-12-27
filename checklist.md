@@ -22,7 +22,12 @@
   - [x] `GET /api/logs/download` (Admin)
   - [x] `DELETE /api/logs/remove` & `POST /api/logs/purge` (Admin)
 
-### 3) Authentication & Security (Current Focus)
+### 3) Email (reset + admin bootstrap)
+- [ ] `core/Email.php`: `Send(dest[], obj, type, content)`
+- [ ] Route `/api/email/send` (ADMIN/EDITOR)
+- [ ] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
+
+### 4) Authentication & Security (Current Focus)
 - [ ] **Database**: Verify tables `USERS`, `TOKENS`, `ATTEMPTS` creation
 - [ ] `core/Attempts.php`: Brute-force protection (get/set/delete/list)
 - [ ] `core/Users.php`: User management logic (Create, Login, Logout, PruneTokens)
@@ -32,11 +37,6 @@
 - [ ] **Secure Endpoints**:
   - [ ] Update `api/logs/*` to replace `TODO` with actual `Auth::check(['ADMIN'])`
   - [ ] Ensure systematic logging of auth failures
-
-### 4) Email (reset + admin bootstrap)
-- [ ] `core/Email.php`: `Send(dest[], obj, type, content)`
-- [ ] Route `/api/email/send` (ADMIN/EDITOR)
-- [ ] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
 
 ### 5) Schemes
 - [ ] `core/Schemes.php`: CRUD operations on JSON schemas
