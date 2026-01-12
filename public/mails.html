@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Test Mails API</title>
+        <style>
+            body {
+                font-family: monospace;
+                margin: 0;
+                display: flex;
+                height: 100vh;
+                background: #f4f4f4;
+                overflow: hidden;
+            }
+
+            aside {
+                width: 450px;
+                padding: 20px;
+                overflow-y: auto;
+                border-right: 1px solid #ccc;
+                background: #fff;
+            }
+
+            main {
+                flex: 1;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                background: #fafafa;
+            }
+
+            section {
+                background: #fff;
+                padding: 20px;
+                border: 1px solid #eee;
+            }
+
+            input,
+            textarea,
+            select {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+                padding: 8px;
+                box-sizing: border-box;
+                font-family: monospace;
+            }
+
+            button {
+                cursor: pointer;
+                padding: 15px;
+                background: #28a745;
+                color: white;
+                border: none;
+                width: 100%;
+                font-weight: bold;
+                font-family: monospace;
+            }
+
+            pre {
+                background: #222;
+                color: #0f0;
+                padding: 15px;
+                flex: 1;
+                overflow: auto;
+                border: 1px solid #000;
+            }
+
+            .error-text {
+                color: #ff4444;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+    <body>
+        <aside>
+            <h2>Email API</h2>
+            <section>
+                <h3>POST /api/email-send</h3>
+                <input id="mail_dest" type="text" placeholder="Destinations (comma separated)">
+                <input id="mail_obj" type="text" placeholder="Subject">
+                <select id="mail_type">
+                    <option value="text">Plain Text</option>
+                    <option value="html">HTML</option>
+                </select>
+                <textarea id="mail_content" rows="10" placeholder="Message content"></textarea>
+                <button
+                    onclick="run('/api/email-send', 'POST', {dest: v('mail_dest'), obj: v('mail_obj'), type: v('mail_type'), content: v('mail_content')})">Send
+                    Email</button>
+            </section>
+        </aside>
+
+        <main>
+            <h3 id="status_label">API Result:</h3>
+            <pre id="output">Waiting for request...</pre>
+        </main>
+
+        <script>
+            const v = (id) => document.getElementById(id).value;
+            async function run(url, method, body = null) {
+                const out = document.getElementById('output');
+                const statusLabel = document.getElementById('status_label');
+                out.textContent = 'Sending...';
+                statusLabel.className = '';
+
+                try {
+                    const options = { method, headers: { 'Content-Type': 'application/json' } };
+                    if (body) options.body = JSON.stringify(body);
+
+                    const res = await fetch(url, options);
+                    const json = await res.json().catch(() => null);
+
+                    if (!res.ok) {
+                        statusLabel.className = 'error-text';
+                        out.textContent = `HTTP ERROR ${res.status} (${res.statusText})\n\n` +
+                            JSON.stringify(json || 'No JSON response', null, 2);
+                    } else {
+                        out.textContent = JSON.stringify(json, null, 2);
+                    }
+                } catch (e) {
+                    statusLabel.className = 'error-text';
+                    out.textContent = 'Error: ' + e.message;
+                }
+            }
+        </script>
+    </body>
+
+</html>

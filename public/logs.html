@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Test Logs API</title>
+        <style>
+            body {
+                font-family: monospace;
+                margin: 0;
+                display: flex;
+                height: 100vh;
+                background: #f4f4f4;
+                overflow: hidden;
+            }
+
+            aside {
+                width: 400px;
+                padding: 20px;
+                overflow-y: auto;
+                border-right: 1px solid #ccc;
+                background: #fff;
+            }
+
+            main {
+                flex: 1;
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                background: #fafafa;
+            }
+
+            section {
+                background: #fff;
+                padding: 15px;
+                margin-bottom: 10px;
+                border: 1px solid #eee;
+            }
+
+            input {
+                width: 100%;
+                margin: 5px 0;
+                padding: 5px;
+                box-sizing: border-box;
+                font-family: monospace;
+            }
+
+            button {
+                cursor: pointer;
+                padding: 8px;
+                background: #0056b3;
+                color: white;
+                border: none;
+                width: 100%;
+                font-family: monospace;
+            }
+
+            pre {
+                background: #222;
+                color: #0f0;
+                padding: 15px;
+                flex: 1;
+                overflow: auto;
+                border: 1px solid #000;
+            }
+
+            .error-text {
+                color: #ff4444;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+
+    <body>
+        <aside>
+            <h2>Logs API</h2>
+
+            <section>
+                <h3>GET /api/logs-get</h3>
+                <input id="get_start" type="text" placeholder="Start Date (Optional)">
+                <input id="get_end" type="text" placeholder="End Date (Optional)">
+                <button onclick="run('/api/logs-get?start='+v('get_start')+'&end='+v('get_end'), 'GET')">List
+                    Logs</button>
+            </section>
+
+            <section>
+                <h3>GET /api/logs-range</h3>
+                <button onclick="run('/api/logs-range', 'GET')">Get Date Range</button>
+            </section>
+
+            <section>
+                <h3>POST /api/logs-message</h3>
+                <input id="msg_type" type="text" value="INF" placeholder="Type (INF, WRN, ERR)">
+                <input id="msg_content" type="text" placeholder="Message content">
+                <button
+                    onclick="run('/api/logs-message', 'POST', {type: v('msg_type'), message: v('msg_content')})">Send
+                    Log</button>
+            </section>
+
+            <section>
+                <h3>POST /api/logs-compute</h3>
+                <input id="comp_id" type="text" placeholder="Log ID">
+                <input id="comp_file" type="text" placeholder="Log Filename">
+                <button onclick="run('/api/logs-compute', 'POST', {id: v('comp_id'), filename: v('comp_file')})">Compute
+                    Stats</button>
+            </section>
+
+            <section>
+                <h3>DELETE /api/logs-remove</h3>
+                <input id="rem_file" type="text" placeholder="Log Filename">
+                <button onclick="run('/api/logs-remove', 'DELETE', {filename: v('rem_file')})">Delete Log</button>
+            </section>
+
+            <section>
+                <h3>POST /api/logs-purge</h3>
+                <button onclick="run('/api/logs-purge', 'POST')">Purge Missing Entries</button>
+            </section>
+        </aside>
+
+        <main>
+            <h3 id="status_label">JSON Result:</h3>
+            <pre id="output">Ready...</pre>
+        </main>
+
+        <script>
+            const v = (id) => document.getElementById(id).value;
+            async function run(url, method, body = null) {
+                const out = document.getElementById('output');
+                const statusLabel = document.getElementById('status_label');
+                out.textContent = 'Executing...';
+                statusLabel.className = '';
+
+                try {
+                    const options = { method, headers: { 'Content-Type': 'application/json' } };
+                    if (body) options.body = JSON.stringify(body);
+
+                    const res = await fetch(url, options);
+                    const json = await res.json().catch(() => null);
+
+                    if (!res.ok) {
+                        statusLabel.className = 'error-text';
+                        out.textContent = `HTTP ERROR ${res.status} (${res.statusText})\n\n` +
+                            JSON.stringify(json || 'No JSON response', null, 2);
+                    } else {
+                        out.textContent = JSON.stringify(json, null, 2);
+                    }
+                } catch (e) {
+                    statusLabel.className = 'error-text';
+                    out.textContent = 'Execution Error: ' + e.message;
+                }
+            }
+        </script>
+    </body>
+
+</html>
