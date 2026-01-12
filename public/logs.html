@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Archetype - Logs</title>
+        <title>Archetype - Logs Dashboard</title>
         <link rel="stylesheet" href="style.css">
     </head>
 
@@ -13,22 +13,72 @@
             <div id="session-info" class="user-info"></div>
         </header>
 
+        <h2>Logs Management</h2>
+
         <section>
             <h3>GET /api/logs-get</h3>
-            <button onclick="run('/api/logs-get', 'GET', null, 'out-get')">List Logs</button>
+            <input id="g_start" type="text" placeholder="Start Date (e.g. 2026-01-01)">
+            <input id="g_end" type="text" placeholder="End Date (e.g. 2026-01-15)">
+            <button
+                onclick="run('/api/logs-get?start=' + v('g_start') + '&end=' + v('g_end'), 'GET', null, 'out-get')">List
+                Logs</button>
             <pre id="out-get"></pre>
         </section>
 
         <section>
+            <h3>GET /api/logs-range</h3>
+            <button onclick="run('/api/logs-range', 'GET', null, 'out-range')">Get Date Range</button>
+            <pre id="out-range"></pre>
+        </section>
+
+        <section>
             <h3>POST /api/logs-message</h3>
-            <input id="l_msg" type="text" placeholder="Message content">
+            <select id="m_type">
+                <option value="INF">INFO</option>
+                <option value="WRN">WARNING</option>
+                <option value="ERR">ERROR</option>
+            </select>
+            <input id="m_content" type="text" placeholder="Custom log message">
             <button
-                onclick="run('/api/logs-message', 'POST', {message: document.getElementById('l_msg').value}, 'out-msg')">Log
-                Message</button>
+                onclick="run('/api/logs-message', 'POST', {type: v('m_type'), message: v('m_content')}, 'out-msg')">Send
+                Log</button>
             <pre id="out-msg"></pre>
         </section>
 
+        <section>
+            <h3>POST /api/logs-compute</h3>
+            <input id="c_id" type="number" placeholder="Log ID">
+            <input id="c_file" type="text" placeholder="Filename (e.g. 2026-01-12_14-00-00_000.log)">
+            <button
+                onclick="run('/api/logs-compute', 'POST', {id: v('c_id'), filename: v('c_file')}, 'out-comp')">Compute
+                Stats</button>
+            <pre id="out-comp"></pre>
+        </section>
+
+        <section>
+            <h3>GET /api/logs-download</h3>
+            <input id="d_file" type="text" placeholder="Filename to download">
+            <button onclick="window.open('/api/logs-download?filename=' + v('d_file'))">Download Raw File</button>
+            <p><small>Note: This opens the file stream in a new tab.</small></p>
+        </section>
+
+        <section>
+            <h3>DELETE /api/logs-remove</h3>
+            <input id="r_file" type="text" placeholder="Filename to delete">
+            <button onclick="run('/api/logs-remove', 'DELETE', {filename: v('r_file')}, 'out-rem')">Delete Log</button>
+            <pre id="out-rem"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/logs-purge</h3>
+            <button onclick="run('/api/logs-purge', 'POST', null, 'out-purge')">Purge Missing Files From DB</button>
+            <pre id="out-purge"></pre>
+        </section>
+
         <script src="auth.js"></script>
+        <script>
+            const v = (id) => document.getElementById(id).value;
+        </script>
     </body>
 
 </html>
