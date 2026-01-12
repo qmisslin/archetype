@@ -109,6 +109,26 @@ class Database
                 type TEXT CHECK(type IN ('LOGIN', 'RESET_PASSWORD')) NOT NULL,
                 timestamp INTEGER NOT NULL,
                 PRIMARY KEY (ip, type)
+            )",
+            // SCHEMES Table - Defines data structures
+            "CREATE TABLE IF NOT EXISTS SCHEMES (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                version INTEGER DEFAULT 1,
+                name TEXT NOT NULL,
+                fields TEXT NOT NULL, -- JSON array of fields
+                creation_timestamp INTEGER NOT NULL,
+                modification_timestamp INTEGER NOT NULL,
+                last_modification_userId INTEGER NOT NULL
+            )",
+            // ENTRIES Table - Stores data entries based on schemes
+            "CREATE TABLE IF NOT EXISTS ENTRIES (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                schemeId INTEGER NOT NULL,
+                schemeVersion INTEGER NOT NULL,
+                data TEXT NOT NULL, -- JSON object
+                creation_timestamp INTEGER NOT NULL,
+                modification_timestamp INTEGER NOT NULL,
+                last_modification_userId INTEGER NOT NULL
             )"
         ];
 
