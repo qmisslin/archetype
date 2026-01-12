@@ -16,7 +16,7 @@ class Attempts
     {
         $db = Database::get();
         
-        // 1. Check Global Block (on any action type)
+        // Check Global Block (on any action type)
         // Spec: "A blocked IP remains blocked regardless of the action type"
         $stmt = $db->prepare("SELECT MAX(attempt_number) as max_attempts FROM ATTEMPTS WHERE ip = ?");
         $stmt->execute([$ip]);
@@ -26,7 +26,7 @@ class Attempts
             return -1; // Blocked globally
         }
 
-        // 2. Check Specific Delay for this action
+        // Check Specific Delay for this action
         $stmt = $db->prepare("SELECT * FROM ATTEMPTS WHERE ip = ? AND type = ?");
         $stmt->execute([$ip, $type]);
         $attempt = $stmt->fetch();

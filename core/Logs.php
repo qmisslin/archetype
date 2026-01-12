@@ -13,8 +13,6 @@ class Logs
     // private const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 MB (prod limit)
     private const MAX_FILE_SIZE = 10 * 1024; // 10 KB (test limit)
 
-    private const LOG_DIR = 'data/logs/';
-
     private static ?string $currentLogFile = null;
     private static ?int $currentLogId = null;
 
@@ -23,12 +21,7 @@ class Logs
      */
     public static function getCurrent(): array
     {
-        // Ensure directory exists
-        $root = dirname(__DIR__, 1);
-        $dir = $root . '/' . self::LOG_DIR;
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
+        $dir = Env::getLogsPath();
 
         // Get most recent entry from DB
         $db = Database::get();
@@ -70,8 +63,7 @@ class Logs
         $filename = date('Y-m-d_H-i-s_', $timestamp) . sprintf('%03d', $milliseconds) . '.log';
         
         // Create physical file
-        $root = dirname(__DIR__, 1);
-        touch($root . '/' . self::LOG_DIR . $filename);
+        touch(Env::getLogsPath() . $filename);
 
         // Insert into DB
         $stmt = $db->prepare("INSERT INTO LOGS (logfile, timestamp) VALUES (?, ?)");
@@ -91,8 +83,7 @@ class Logs
     public static function message(string $type, array $data): void
     {
         $current = self::getCurrent();
-        $root = dirname(__DIR__, 1);
-        $path = $root . '/' . self::LOG_DIR . $current['file'];
+        $path = Env::getLogsPath() . $current['file'];
 
         // Standard JSONL structure
         $entry = array_merge([
@@ -167,8 +158,7 @@ class Logs
      */
     public static function compute(int $logId, string $filename): void
     {
-        $root = dirname(__DIR__, 1);
-        $filePath = $root . '/' . self::LOG_DIR . $filename;
+        $filePath = Env::getLogsPath() . $filename;
 
         if (!file_exists($filePath)) {
             return;
@@ -326,7 +316,7 @@ class Logs
         $logs = $stmt->fetchAll();
 
         // Check physical file existence
-        $root = dirname(__DIR__, 1) . '/' . self::LOG_DIR;
+        $root = Env::getLogsPath();
         foreach ($logs as &$log) {
             $log['file_exists'] = file_exists($root . $log['logfile']);
             if ($log['stats']) {
@@ -344,7 +334,7 @@ class Logs
     {
         // Security: Prevent directory traversal
         $filename = basename($filename);
-        $path = dirname(__DIR__, 1) . '/' . self::LOG_DIR . $filename;
+        $path = Env::getLogsPath() . $filename;
         return file_exists($path) ? $path : null;
     }
 
@@ -354,7 +344,7 @@ class Logs
     public static function remove(string $filename): bool
     {
         $filename = basename($filename);
-        $path = dirname(__DIR__, 1) . '/' . self::LOG_DIR . $filename;
+        $path = Env::getLogsPath() . $filename;
         
         if (file_exists($path)) {
             unlink($path);
@@ -372,7 +362,7 @@ class Logs
     {
         $db = Database::get();
         $logs = $db->query("SELECT id, logfile FROM LOGS")->fetchAll();
-        $root = dirname(__DIR__, 1) . '/' . self::LOG_DIR;
+        $root = Env::getLogsPath();
         $count = 0;
 
         foreach ($logs as $log) {

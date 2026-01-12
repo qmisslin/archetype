@@ -51,15 +51,7 @@ class Database
 
     private static function initSqlite(): void
     {
-        $path = $_ENV['DB_FILEPATH'] ?? 'data/database.sql';
-        $fullPath = dirname(__DIR__, 1) . '/' . $path;
-        
-        // Ensure data directory exists
-        $dir = dirname($fullPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-
+        $fullPath = Env::getDbPath();
         self::$pdo = new PDO('sqlite:' . $fullPath);
     }
 
