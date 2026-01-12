@@ -37,8 +37,6 @@
 - [x] **Secure Endpoints**:
   - [x] Update `api/logs/*` to replace `TODO` with actual `Auth::check(['ADMIN'])`
   - [x] Ensure systematic logging of auth failures
-  - [ ] Create Context class
-  - [ ] Create unit test for each routes
 
 ### 5) Schemes
 - [ ] `core/Schemes.php`: CRUD operations on JSON schemas
