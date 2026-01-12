@@ -161,7 +161,7 @@ DB_USER= # Database username (Required if DB_TYPE is not SQLITE)
 DB_PASS= # Database password (Required if DB_TYPE is not SQLITE)
 EMAIL_USER=
 EMAIL_PASS=
-````
+```
 
 `Init()`
 Loads environment variables. Conditional validation is applied:
@@ -186,13 +186,13 @@ Function that connects to the database and creates tables if they do not already
 
 Endpoints:
 
-* `[PUBLIC]` **POST** `/api/logs/message` (type, content)
-* `[ADMIN] [EDITOR]` **POST** `/api/logs/compute` (logId, logFileName)
-* `[ADMIN] [EDITOR]` **GET** `/api/logs/range` ()
-* `[ADMIN] [EDITOR]` **GET** `/api/logs/get` (startDate nullable, endDate nullable)
-* `[ADMIN]` **GET** `/api/logs/download` (filename)
-* `[ADMIN]` **DELETE** `/api/logs/remove` (filename)
-* `[ADMIN]` **POST** `/api/logs/purge` ()
+* `[ADMIN] [EDITOR]` **POST** `/api/logs-compute` (logId, logFileName)
+* `[ADMIN]` **GET** `/api/logs-download` (filename)
+* `[ADMIN] [EDITOR]` **GET** `/api/logs-get` (startDate nullable, endDate nullable)
+* `[PUBLIC]` **POST** `/api/logs-message` (type, content)
+* `[ADMIN]` **POST** `/api/logs-purge` ()
+* `[ADMIN] [EDITOR]` **GET** `/api/logs-range` ()
+* `[ADMIN]` **DELETE** `/api/logs-remove` (filename)
 
 `range()`
 Retrieves the maximum date and the minimum date of entries in the `LOGS` table.
@@ -211,7 +211,7 @@ Deletes a log file.
 `purge()`
 Delete all database entries related to a log file that has been deleted.
 
-`getCurrent()`
+`get-current()`
 Retrieves the most recent entry from the `LOGS` table (based on creation date).
 It checks the corresponding log file, and if it exceeds 3MB:
 
@@ -724,4 +724,3 @@ Then in the entry table you would have:
   "article-name": "Article principal de mon blog"
 }
 ```
-

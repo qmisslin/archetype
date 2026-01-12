@@ -25,3 +25,7 @@ data/uploads/*
 
 # SQLite database
 data/database.sql
+
+# Context files
+context.txt
+context.sh

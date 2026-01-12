@@ -25,18 +25,20 @@
 ### 3) Email (reset + admin bootstrap)
 - [x] `core/Email.php`: `Send(dest[], obj, type, content)`
 - [x] Route `/api/email/send` (ADMIN/EDITOR)
-- [ ] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
+- [x] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
 
 ### 4) Authentication & Security (Current Focus)
-- [ ] **Database**: Verify tables `USERS`, `TOKENS`, `ATTEMPTS` creation
-- [ ] `core/Attempts.php`: Brute-force protection (get/set/delete/list)
-- [ ] `core/Users.php`: User management logic (Create, Login, Logout, PruneTokens)
-- [ ] **Auth Middleware/Helper**:
-  - [ ] Token extraction & validation
-  - [ ] Role resolution (`ADMIN`, `EDITOR`, `PUBLIC`)
-- [ ] **Secure Endpoints**:
-  - [ ] Update `api/logs/*` to replace `TODO` with actual `Auth::check(['ADMIN'])`
-  - [ ] Ensure systematic logging of auth failures
+- [x] **Database**: Verify tables `USERS`, `TOKENS`, `ATTEMPTS` creation
+- [x] `core/Attempts.php`: Brute-force protection (get/set/delete/list)
+- [x] `core/Users.php`: User management logic (Create, Login, Logout, PruneTokens)
+- [x] **Auth Middleware/Helper**:
+  - [x] Token extraction & validation
+  - [x] Role resolution (`ADMIN`, `EDITOR`, `PUBLIC`)
+- [x] **Secure Endpoints**:
+  - [x] Update `api/logs/*` to replace `TODO` with actual `Auth::check(['ADMIN'])`
+  - [x] Ensure systematic logging of auth failures
+  - [ ] Create Context class
+  - [ ] Create unit test for each routes
 
 ### 5) Schemes
 - [ ] `core/Schemes.php`: CRUD operations on JSON schemas
