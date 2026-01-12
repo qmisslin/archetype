@@ -27,7 +27,7 @@
 - [x] Route `/api/email/send` (ADMIN/EDITOR)
 - [x] `ForgotPassword` + `ChangePassword` (1h reset tokens) + related logs
 
-### 4) Authentication & Security (Current Focus)
+### 4) Authentication & Security
 - [x] **Database**: Verify tables `USERS`, `TOKENS`, `ATTEMPTS` creation
 - [x] `core/Attempts.php`: Brute-force protection (get/set/delete/list)
 - [x] `core/Users.php`: User management logic (Create, Login, Logout, PruneTokens)
@@ -38,31 +38,30 @@
   - [x] Update `api/logs/*` to replace `TODO` with actual `Auth::check(['ADMIN'])`
   - [x] Ensure systematic logging of auth failures
 
-### 5) Schemes
+### 5) Frontends (Bootstrap)
+- [x] `index.php` & `/public` dashboards: Developer tools (Logs, Users, Mails, Reset)
+
+### 6) Schemes
 - [ ] `core/Schemes.php`: CRUD operations on JSON schemas
 - [ ] `core/Schemes.php`: Field management (add/remove/rekey/update)
 - [ ] Version handling + entry migrations
 - [ ] Logs: every schema mutation -> `INF` (schemeId, version, userId)
 
-### 6) Entries
+### 7) Entries
 - [ ] `core/Entries.php`: CRUD operations for content
 - [ ] Data validation engine (validate input against Scheme rules)
 - [ ] Access control: filter fields based on user role
 - [ ] `Search` AST: Implement JSON-based search syntax (whitelist)
 
-### 7) Uploads
+### 8) Uploads
 - [ ] `core/Uploads.php`: File management & Virtual folders
 - [ ] Storage security: mime/extension checks + path traversal prevention
 - [ ] Access control: serve files based on `access[]` rules
 - [ ] API Routes: upload, replace, list, get
 
-### 8) Trackers
+### 9) Trackers
 - [ ] `core/Trackers.php`: CRUD operations
 - [ ] API Routes: `/api/trackers/*`
-
-### 9) Frontends (Bootstrap)
-- [x] `index.php` & `logs.html`: Developer Dashboard (Logs UI)
-- [ ] `admin.php`: Main Admin Panel (Login + Schema/Content management)
 
 ### 10) Quality & Tests
 - [ ] Unit tests: schema validation, AST logic, log parsing
