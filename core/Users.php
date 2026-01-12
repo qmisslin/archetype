@@ -55,7 +55,7 @@ class Users
         $stmt->execute([$token, $expiry, $userId, 'PASSWORD_RESET', time(), $ip]);
 
         // Activation link sent to the admin email
-        $link = $appUrl . '/admin/reset-password?token=' . urlencode($token);
+        $link = $appUrl . $_ENV['RESET_PASSWORD_PATH'] . '?token=' . urlencode($token);
 
         try {
             Email::send(
@@ -156,7 +156,7 @@ class Users
             $stmt = $db->prepare("INSERT INTO TOKENS (token, expiration_timestamp, userId, role, creation_timestamp, ip) VALUES (?, ?, ?, 'PASSWORD_RESET', ?, ?)");
             $stmt->execute([$token, $expiry, $user['id'], time(), $ip]);
 
-            $link = $appUrl . '/admin/reset-password?token=' . urlencode($token);
+            $link = $appUrl . $_ENV['RESET_PASSWORD_PATH'] . '?token=' . urlencode($token);
 
             Email::send(
                 [$email],

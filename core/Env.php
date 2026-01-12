@@ -58,7 +58,7 @@ class Env
 
     private static function validate(Dotenv $dotenv): void
     {
-        $dotenv->required('APP_URL')->notEmpty();
+        $dotenv->required(['APP_URL', 'RESET_PASSWORD_PATH'])->notEmpty();
 
         $dotenv->required(['SMTP_USER', 'SMTP_PASS', 'SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'])->notEmpty();
         $dotenv->required('SMTP_SECURE')->allowedValues(['tls', 'ssl', 'none']);
