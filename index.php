@@ -17,6 +17,7 @@
         <p>Access developer tools and administration dashboards.</p>
         
         <button onclick="location.href='./public/users.html'">Users Dashboard</button>
+        <button onclick="location.href='./public/schemes.html'" style="margin-top: 10px;">Schemes Dashboard</button>
         <button onclick="location.href='./public/logs.html'" style="margin-top: 10px;">Logs Dashboard</button>
         <button onclick="location.href='./public/mails.html'" style="margin-top: 10px;">Mails Dashboard</button>
     </section>
