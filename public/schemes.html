@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Archetype - Schemes Dashboard</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <header>
+            <a href="../index.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info"></div>
+        </header>
+
+        <h2>Schemes Management</h2>
+
+        <section>
+            <h3>GET /api/schemes-list</h3>
+            <button onclick="run('/api/schemes-list', 'GET', null, 'out-list')">List All Schemes</button>
+            <pre id="out-list"></pre>
+        </section>
+
+        <section>
+            <h3>GET /api/schemes-get</h3>
+            <input id="g_id" type="number" placeholder="Scheme ID">
+            <button onclick="run('/api/schemes-get?schemeID=' + v('g_id'), 'GET', null, 'out-get')">Get Full
+                Scheme</button>
+            <pre id="out-get"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/schemes-create</h3>
+            <input id="c_name" type="text" placeholder="Scheme Name (e.g. Articles)">
+            <button onclick="run('/api/schemes-create', 'POST', {name: v('c_name')}, 'out-create')">Create
+                Scheme</button>
+            <pre id="out-create"></pre>
+        </section>
+
+        <section>
+            <h3>PATCH /api/schemes-rename</h3>
+            <input id="rn_id" type="number" placeholder="Scheme ID">
+            <input id="rn_name" type="text" placeholder="New Name">
+            <button
+                onclick="run('/api/schemes-rename', 'PATCH', {schemeID: v('rn_id'), name: v('rn_name')}, 'out-rename')">Rename
+                Scheme</button>
+            <pre id="out-rename"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/schemes-add-field</h3>
+            <input id="af_id" type="number" placeholder="Scheme ID">
+            <p><small>Field JSON Definition:</small></p>
+            <textarea id="af_json" rows="8">
+{
+  "key": "title",
+  "label": "Article Title",
+  "required": true,
+  "type": "STRING",
+  "is-array": false,
+  "default": "New Post",
+  "access": ["ADMIN", "EDITOR", "PUBLIC"],
+  "rules": {}
+}</textarea>
+            <button
+                onclick="run('/api/schemes-add-field', 'POST', {schemeID: v('af_id'), field: JSON.parse(v('af_json'))}, 'out-add')">Add
+                Field</button>
+            <pre id="out-add"></pre>
+        </section>
+
+        <section>
+            <h3>PATCH /api/schemes-update-field</h3>
+            <input id="uf_id" type="number" placeholder="Scheme ID">
+            <input id="uf_key" type="text" placeholder="Field Key to Update">
+            <p><small>Updated Field JSON (Changes to rules/type trigger version increment):</small></p>
+            <textarea id="uf_json" rows="8">
+{
+  "key": "title",
+  "label": "Updated Label",
+  "required": true,
+  "type": "STRING",
+  "is-array": false,
+  "default": "New Post",
+  "access": ["ADMIN", "EDITOR"],
+  "rules": {"min-char": 5}
+}</textarea>
+            <button
+                onclick="run('/api/schemes-update-field', 'PATCH', {schemeID: v('uf_id'), key: v('uf_key'), field: JSON.parse(v('uf_json'))}, 'out-update')">Update
+                Field</button>
+            <pre id="out-update"></pre>
+        </section>
+
+        <section>
+            <h3>PATCH /api/schemes-rekey-field</h3>
+            <input id="rk_id" type="number" placeholder="Scheme ID">
+            <input id="rk_old" type="text" placeholder="Old Key">
+            <input id="rk_new" type="text" placeholder="New Key">
+            <button
+                onclick="run('/api/schemes-rekey-field', 'PATCH', {schemeID: v('rk_id'), oldKey: v('rk_old'), newKey: v('rk_new')}, 'out-rekey')">Rekey
+                Field (Migration)</button>
+            <pre id="out-rekey"></pre>
+        </section>
+
+        <section>
+            <h3>PATCH /api/schemes-index-field</h3>
+            <input id="idx_id" type="number" placeholder="Scheme ID">
+            <input id="idx_key" type="text" placeholder="Field Key">
+            <input id="idx_pos" type="number" placeholder="New Position (0-based)">
+            <button
+                onclick="run('/api/schemes-index-field', 'PATCH', {schemeID: v('idx_id'), key: v('idx_key'), index: v('idx_pos')}, 'out-index')">Reorder
+                Field</button>
+            <pre id="out-index"></pre>
+        </section>
+
+        <section>
+            <h3>DELETE /api/schemes-remove-field</h3>
+            <input id="rf_id" type="number" placeholder="Scheme ID">
+            <input id="rf_key" type="text" placeholder="Field Key">
+            <button
+                onclick="run('/api/schemes-remove-field', 'DELETE', {schemeID: v('rf_id'), key: v('rf_key')}, 'out-rf')">Remove
+                Field (Migration)</button>
+            <pre id="out-rf"></pre>
+        </section>
+
+        <section>
+            <h3>DELETE /api/schemes-remove</h3>
+            <input id="rem_id" type="number" placeholder="Scheme ID">
+            <button
+                onclick="if(confirm('Warning: This will delete ALL related entries. Proceed?')) run('/api/schemes-remove', 'DELETE', {schemeID: v('rem_id')}, 'out-rem')">Delete
+                Scheme</button>
+            <pre id="out-rem"></pre>
+        </section>
+
+        <script src="auth.js"></script>
+        <script>
+            const v = (id) => document.getElementById(id).value;
+        </script>
+    </body>
+
+</html>
