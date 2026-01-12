@@ -3,7 +3,7 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Archetype - Users</title>
+        <title>Archetype - Users Dashboard</title>
         <link rel="stylesheet" href="style.css">
     </head>
 
@@ -13,12 +13,14 @@
             <div id="session-info" class="user-info"></div>
         </header>
 
+        <h2>User Management</h2>
+
         <section>
             <h3>POST /api/user-login</h3>
-            <input id="login_email" type="text" placeholder="Email">
-            <input id="login_pass" type="password" placeholder="Password">
+            <input id="l_email" type="text" placeholder="Email">
+            <input id="l_pass" type="password" placeholder="Password">
             <button
-                onclick="run('/api/user-login', 'POST', {email: document.getElementById('login_email').value, password: document.getElementById('login_pass').value}, 'out-login')">Login</button>
+                onclick="run('/api/user-login', 'POST', {email: v('l_email'), password: v('l_pass')}, 'out-login')">Login</button>
             <pre id="out-login"></pre>
         </section>
 
@@ -36,13 +38,26 @@
         <section>
             <h3>POST /api/user-forgot-password</h3>
             <input id="f_email" type="text" placeholder="Email">
-            <button
-                onclick="run('/api/user-forgot-password', 'POST', {email: document.getElementById('f_email').value}, 'out-f')">Request
+            <button onclick="run('/api/user-forgot-password', 'POST', {email: v('f_email')}, 'out-f')">Request
                 Reset</button>
             <pre id="out-f"></pre>
         </section>
 
+        <section>
+            <h3>POST /api/user-change-password</h3>
+            <input id="c_token" type="text" placeholder="Token">
+            <input id="c_email" type="text" placeholder="Email">
+            <input id="c_pass" type="password" placeholder="New Password">
+            <button
+                onclick="run('/api/user-change-password', 'POST', {token: v('c_token'), email: v('c_email'), password: v('c_pass')}, 'out-c')">Change
+                Password</button>
+            <pre id="out-c"></pre>
+        </section>
+
         <script src="auth.js"></script>
+        <script>
+            const v = (id) => document.getElementById(id).value;
+        </script>
     </body>
 
 </html>
