@@ -1,11 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../../core/Boot.php';
+require_once __DIR__ . '/../core/Boot.php';
 
 use Archetype\Core\APIHelper;
 use Archetype\Core\Users;
 
-/** @var \Archetype\Core\Router $router */
+// Public route, no auth check.
+
 $body = $router->getBody();
 
 // Validate required inputs for password reset

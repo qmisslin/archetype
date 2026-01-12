@@ -1,12 +1,11 @@
 <?php
-require_once __DIR__ . '/../../core/Boot.php';
+require_once __DIR__ . '/../core/Boot.php';
 
 use Archetype\Core\APIHelper;
 use Archetype\Core\Logs;
+use Archetype\Core\Auth;
 
-/** @var Archetype\Core\Router $router */
-
-// TODO: Add Auth check (ADMIN/EDITOR) here
+Auth::check(['ADMIN', 'EDITOR']);
 
 $params = $router->getBody();
 $start = $params['start'] ?? null;

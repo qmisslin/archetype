@@ -1,16 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../../core/Boot.php';
+require_once __DIR__ . '/../core/Boot.php';
 
 use Archetype\Core\APIHelper;
 use Archetype\Core\Email;
-use Archetype\Core\Auth; // Will be implemented next; temporarily disable the call
+use Archetype\Core\Auth;
 use Archetype\Core\Router;
 
-/** @var Router $router */
-
-// TODO: Uncomment once Auth is implemented
-// Auth::check(['ADMIN', 'EDITOR']);
+Auth::check(['ADMIN', 'EDITOR']);
 
 $body = $router->getBody();
 
