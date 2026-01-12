@@ -3,156 +3,46 @@
 
     <head>
         <meta charset="UTF-8">
-        <title>Test Users API</title>
-        <style>
-            body {
-                font-family: monospace;
-                margin: 0;
-                display: flex;
-                height: 100vh;
-                background: #f4f4f4;
-                overflow: hidden;
-            }
-
-            aside {
-                width: 400px;
-                padding: 20px;
-                overflow-y: auto;
-                border-right: 1px solid #ccc;
-                background: #fff;
-            }
-
-            main {
-                flex: 1;
-                padding: 20px;
-                display: flex;
-                flex-direction: column;
-                background: #fafafa;
-            }
-
-            section {
-                background: #fff;
-                padding: 15px;
-                margin-bottom: 20px;
-                border: 1px solid #eee;
-            }
-
-            h3 {
-                margin-top: 0;
-                font-size: 0.9rem;
-                color: #555;
-                border-bottom: 1px solid #f4f4f4;
-                padding-bottom: 5px;
-            }
-
-            input {
-                display: block;
-                width: 100%;
-                margin: 5px 0;
-                padding: 8px;
-                box-sizing: border-box;
-                font-family: monospace;
-            }
-
-            button {
-                cursor: pointer;
-                padding: 10px;
-                background: #333;
-                color: #fff;
-                border: none;
-                width: 100%;
-                font-family: monospace;
-            }
-
-            button:hover {
-                background: #555;
-            }
-
-            pre {
-                background: #222;
-                color: #0f0;
-                padding: 15px;
-                overflow: auto;
-                flex: 1;
-                border: 1px solid #000;
-                margin: 0;
-            }
-
-            .error-text {
-                color: #ff4444;
-                font-weight: bold;
-            }
-        </style>
+        <title>Archetype - Users</title>
+        <link rel="stylesheet" href="style.css">
     </head>
 
     <body>
-        <aside>
-            <h2>Users API</h2>
+        <header>
+            <a href="../index.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info"></div>
+        </header>
 
-            <section>
-                <h3>POST /api/user-create-admin-user</h3>
-                <button onclick="run('/api/user-create-admin-user', 'POST')">Create Admin</button>
-            </section>
+        <section>
+            <h3>POST /api/user-login</h3>
+            <input id="login_email" type="text" placeholder="Email">
+            <input id="login_pass" type="password" placeholder="Password">
+            <button
+                onclick="run('/api/user-login', 'POST', {email: document.getElementById('login_email').value, password: document.getElementById('login_pass').value}, 'out-login')">Login</button>
+            <pre id="out-login"></pre>
+        </section>
 
-            <section>
-                <h3>POST /api/user-login</h3>
-                <input id="login_email" type="text" placeholder="Email">
-                <input id="login_pass" type="password" placeholder="Password">
-                <button
-                    onclick="run('/api/user-login', 'POST', {email: v('login_email'), password: v('login_pass')})">Login</button>
-            </section>
+        <section>
+            <h3>Session Control</h3>
+            <button onclick="auth.logout()">Logout (Clear Storage)</button>
+        </section>
 
-            <section>
-                <h3>POST /api/user-forgot-password</h3>
-                <input id="forgot_email" type="text" placeholder="Email">
-                <button onclick="run('/api/user-forgot-password', 'POST', {email: v('forgot_email')})">Request
-                    Reset</button>
-            </section>
+        <section>
+            <h3>POST /api/user-create-admin-user</h3>
+            <button onclick="run('/api/user-create-admin-user', 'POST', null, 'out-boot')">Bootstrap Admin</button>
+            <pre id="out-boot"></pre>
+        </section>
 
-            <section>
-                <h3>POST /api/user-change-password</h3>
-                <input id="chg_token" type="text" placeholder="Token">
-                <input id="chg_email" type="text" placeholder="Email">
-                <input id="chg_pass" type="password" placeholder="New Password">
-                <button
-                    onclick="run('/api/user-change-password', 'POST', {token: v('chg_token'), email: v('chg_email'), password: v('chg_pass')})">Change
-                    Password</button>
-            </section>
-        </aside>
+        <section>
+            <h3>POST /api/user-forgot-password</h3>
+            <input id="f_email" type="text" placeholder="Email">
+            <button
+                onclick="run('/api/user-forgot-password', 'POST', {email: document.getElementById('f_email').value}, 'out-f')">Request
+                Reset</button>
+            <pre id="out-f"></pre>
+        </section>
 
-        <main>
-            <h3 id="status_label">API Response Output:</h3>
-            <pre id="output">Waiting for action...</pre>
-        </main>
-
-        <script>
-            const v = (id) => document.getElementById(id).value;
-            async function run(url, method, body = null) {
-                const out = document.getElementById('output');
-                const statusLabel = document.getElementById('status_label');
-                out.textContent = 'Loading...';
-                statusLabel.className = '';
-
-                try {
-                    const options = { method, headers: { 'Content-Type': 'application/json' } };
-                    if (body) options.body = JSON.stringify(body);
-
-                    const res = await fetch(url, options);
-                    const json = await res.json().catch(() => null);
-
-                    if (!res.ok) {
-                        statusLabel.className = 'error-text';
-                        out.textContent = `HTTP ERROR ${res.status} (${res.statusText})\n\n` +
-                            JSON.stringify(json || 'No JSON response', null, 2);
-                    } else {
-                        out.textContent = JSON.stringify(json, null, 2);
-                    }
-                } catch (e) {
-                    statusLabel.className = 'error-text';
-                    out.textContent = 'Network/Execution Error: ' + e.message;
-                }
-            }
-        </script>
+        <script src="auth.js"></script>
     </body>
 
 </html>
