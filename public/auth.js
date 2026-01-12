@@ -1,12 +1,13 @@
+// /public/auth.js
 const auth = {
     save(data) {
         localStorage.setItem('archetype_token', data.token);
         localStorage.setItem('archetype_user', JSON.stringify({ name: data.name, role: data.role }));
-        window.location.reload();
+        updateUI();
     },
     logout() {
         localStorage.clear();
-        window.location.reload();
+        updateUI();
     },
     get() {
         return {
@@ -44,9 +45,11 @@ async function run(url, method, body, outputId) {
         const json = await res.json().catch(() => null);
 
         out.textContent = JSON.stringify(json || { status: res.status, text: res.statusText }, null, 2);
-        if (!res.ok) out.className = 'error-output';
 
-        // Auto-save auth on login success
+        if (!res.ok) {
+            out.className = 'error-output';
+        }
+
         if (url.includes('user-login') && res.ok && json.data) {
             auth.save(json.data);
         }

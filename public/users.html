@@ -21,7 +21,7 @@
             <input id="l_pass" type="password" placeholder="Password">
             <button
                 onclick="run('/api/user-login', 'POST', {email: v('l_email'), password: v('l_pass')}, 'out-login')">Login</button>
-            <pre id="out-login"></pre>
+            <pre id="out-login">API response will appear here...</pre>
         </section>
 
         <section>
@@ -45,8 +45,8 @@
 
         <section>
             <h3>POST /api/user-change-password</h3>
-            <input id="c_token" type="text" placeholder="Token">
-            <input id="c_email" type="text" placeholder="Email">
+            <input id="c_token" type="text" placeholder="Reset Token">
+            <input id="c_email" type="text" placeholder="Account Email">
             <input id="c_pass" type="password" placeholder="New Password">
             <button
                 onclick="run('/api/user-change-password', 'POST', {token: v('c_token'), email: v('c_email'), password: v('c_pass')}, 'out-c')">Change
