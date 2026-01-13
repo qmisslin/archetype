@@ -1,9 +1,13 @@
 <?php
 /**
  * Archetype System Diagnostic & Dashboard
- * Standardized B&W theme with explicit security and routing feedback.
+ * Standardized B&W theme with explicit security, routing, and filesystem feedback.
  */
 require_once __DIR__ . '/core/Boot.php';
+
+use Archetype\Core\Env;
+
+// Force HTML header to override the API JSON header from Boot.php
 header('Content-Type: text/html; charset=utf-8');
 ?>
 <!DOCTYPE html>
@@ -42,7 +46,8 @@ header('Content-Type: text/html; charset=utf-8');
 
     <div class="diag-grid">
         <section>
-            <h3>Server Configuration</h3>
+            <h3>Server & Filesystem</h3>
+            
             <div class="log-item">
                 <div class="log-header"><span>Protocol</span> <strong><?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'HTTPS' : 'HTTP'; ?></strong></div>
             </div>
@@ -52,15 +57,43 @@ header('Content-Type: text/html; charset=utf-8');
             <div class="log-item">
                 <div class="log-header"><span>DB Engine</span> <strong><?php echo $_ENV['DB_TYPE'] ?? 'NOT SET'; ?></strong></div>
             </div>
+            
             <?php if(($_ENV['DB_TYPE'] ?? '') === 'SQLITE'): ?>
                 <div class="log-item">
-                    <div class="log-header"><span>SQLite File</span> <span class="info"><?php echo basename($_ENV['DB_PATH'] ?? 'database.sql'); ?></span></div>
+                    <div class="log-header"><span>Database File</span> <span class="info"><?php echo basename($_ENV['DB_PATH'] ?? 'database.sql'); ?></span></div>
                 </div>
             <?php else: ?>
                 <div class="log-item">
                     <div class="log-header"><span>Host</span> <strong><?php echo $_ENV['DB_HOST'] ?? 'localhost'; ?></strong></div>
                 </div>
             <?php endif; ?>
+            <hr style="border: 0; margin: 3px 0;">
+            <?php
+            $paths = [
+                'Logs Directory' => Env::getLogsPath(),
+                'Uploads Directory' => Env::getUploadsPath(),
+                'Data Root' => dirname(Env::getDbPath())
+            ];
+
+            if (($_ENV['DB_TYPE'] ?? '') === 'SQLITE') {
+                $paths['Database File Access'] = Env::getDbPath();
+            }
+
+            foreach ($paths as $name => $path):
+                $isWritable = is_writable($path);
+            ?>
+            <div class="log-item">
+                <div class="log-header">
+                    <span><?php echo $name; ?></span>
+                    <span class="tag <?php echo $isWritable ? 'ok' : 'err'; ?>">
+                        <?php echo $isWritable ? 'Writable' : 'Locked'; ?>
+                    </span>
+                </div>
+                <div class="log-comment">
+                    <?php echo $isWritable ? '✓ Permissions are correct' : '✗ Permission denied at ' . $path; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
         </section>
 
         <section>
@@ -78,9 +111,6 @@ header('Content-Type: text/html; charset=utf-8');
     <script>
         const v = (id) => document.getElementById(id);
 
-        /**
-         * Returns an HTML string for a diagnostic item with explicit feedback.
-         */
         function createDiagItem(name, status, isOk, comment) {
             return `
                 <div class="log-item">
@@ -125,7 +155,6 @@ header('Content-Type: text/html; charset=utf-8');
             for (const r of routes) {
                 try {
                     const res = await fetch(r.url, { method: 'OPTIONS' });
-                    // Rewrites work if we get any standard API response (Auth/Method errors) instead of a 404
                     const isOk = res.status < 500 && res.status !== 404; 
                     let comment = isOk ? 'Rewrite rules functional' : 'Check .htaccess configuration';
                     if (res.status === 404) comment = 'FAILED: .php extension required';
