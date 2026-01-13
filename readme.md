@@ -42,7 +42,7 @@ The project documentation is intentionally centralized and kept up to date.
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/qmisslin/archetype.git
 cd archetype
 
 ```
