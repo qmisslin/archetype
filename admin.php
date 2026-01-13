@@ -137,7 +137,11 @@ header('Content-Type: text/html; charset=utf-8');
         async function runRouteTests() {
             const routes = [
                 { name: 'Login', url: './api/user-login' },
-                { name: 'Logs', url: './api/logs-range' },
+                { name: 'Public Msg', url: './api/logs-message' },
+                { name: 'Admin Boot', url: './api/user-create-admin-user' },
+                { name: 'Email Send', url: './api/email-send' },
+                { name: 'Logs Range', url: './api/logs-range' },
+                { name: 'Logs Get', url: './api/logs-get' },
                 { name: 'Schemes', url: './api/schemes-list' }
             ];
             let html = '';
@@ -145,7 +149,14 @@ header('Content-Type: text/html; charset=utf-8');
                 try {
                     const res = await fetch(r.url, { method: 'OPTIONS' });
                     const isOk = res.status < 500 && res.status !== 404;
-                    html += createDiagItem(r.name, res.status, isOk, isOk ? 'Working' : 'Rewrite fail');
+                    
+                    // Add expected failure notice to label for 400 (Bad Request) or 401 (Unauthorized)
+                    let label = r.name;
+                    if (res.status === 400 || res.status === 401) {
+                        label += ' <span style="font-size:0.8em; opacity:0.5;">(Expected Fail)</span>';
+                    }
+                    
+                    html += createDiagItem(label, res.status, isOk, isOk ? 'Working' : 'Rewrite fail');
                 } catch (e) {
                     html += createDiagItem(r.name, 'ERR', false, 'Unreachable');
                 }
