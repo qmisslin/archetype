@@ -76,10 +76,7 @@ cp .env.example .env
 
 Edit `.env` and configure:
 
-* 
-`DB_TYPE` (SQLITE or MYSQL) 
-
-
+* `DB_TYPE` (SQLITE or MYSQL) 
 * `SMTP_PORT` (Recommended: 587) and `SMTP_SECURE` (Recommended: tls)
 
 ---
