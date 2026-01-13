@@ -11,7 +11,7 @@ RewriteEngine On
 RewriteBase /
 
 # ROUTING: Redirect root URL "/" to the main dashboard
-RewriteRule ^$ index.php [L]
+RewriteRule ^$ index.html [L]
 
 # SECURITY: Deny direct access to core system directories
 RewriteRule ^core(?:/|$) - [F,L]
