@@ -63,7 +63,7 @@ class Database
     {
         $type = $_ENV['DB_TYPE'] ?? 'SQLITE';
         
-        // Handle syntax differences for Primary Keys 
+        // Use proper Primary Key syntax for the driver
         $pk = ($type === 'SQLITE') 
             ? "INTEGER PRIMARY KEY AUTOINCREMENT" 
             : "INT AUTO_INCREMENT PRIMARY KEY";
@@ -71,7 +71,7 @@ class Database
         $queries = [
             "CREATE TABLE IF NOT EXISTS LOGS (
                 id $pk,
-                logfile TEXT NOT NULL,
+                logfile VARCHAR(255) NOT NULL,
                 timestamp INTEGER NOT NULL,
                 stats TEXT DEFAULT NULL,
                 modification_date TEXT DEFAULT NULL
@@ -80,8 +80,8 @@ class Database
                 id $pk,
                 email VARCHAR(255) NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                name TEXT NOT NULL,
-                role TEXT CHECK(role IN ('PUBLIC', 'EDITOR', 'ADMIN')) NOT NULL DEFAULT 'PUBLIC',
+                name VARCHAR(255) NOT NULL,
+                role VARCHAR(20) NOT NULL DEFAULT 'PUBLIC',
                 enable INTEGER DEFAULT 1,
                 creation_timestamp INTEGER NOT NULL
             )",
@@ -89,22 +89,22 @@ class Database
                 token VARCHAR(255) PRIMARY KEY,
                 expiration_timestamp INTEGER NOT NULL,
                 userId INTEGER NOT NULL,
-                role TEXT NOT NULL,
+                role VARCHAR(20) NOT NULL,
                 creation_timestamp INTEGER NOT NULL,
-                ip TEXT NOT NULL
+                ip VARCHAR(45) NOT NULL
             )",
             "CREATE TABLE IF NOT EXISTS ATTEMPTS (
-                ip VARCHAR(255) NOT NULL,
+                ip VARCHAR(45) NOT NULL,
                 user_email VARCHAR(255) NOT NULL,
                 attempt_number INTEGER DEFAULT 0,
-                type TEXT CHECK(type IN ('LOGIN', 'RESET_PASSWORD')) NOT NULL,
+                type VARCHAR(20) NOT NULL,
                 timestamp INTEGER NOT NULL,
                 PRIMARY KEY (ip, type)
             )",
             "CREATE TABLE IF NOT EXISTS SCHEMES (
                 id $pk,
                 version INTEGER DEFAULT 1,
-                name TEXT NOT NULL,
+                name VARCHAR(255) NOT NULL,
                 fields TEXT NOT NULL,
                 creation_timestamp INTEGER NOT NULL,
                 modification_timestamp INTEGER NOT NULL,
