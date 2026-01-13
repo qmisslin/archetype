@@ -1,32 +1,32 @@
-# Enable URL rewriting
-RewriteEngine On
+# ------------------------------------------------------------------------------
+# ARCHETYPE: SERVER CONFIGURATION
+# ------------------------------------------------------------------------------
 
-# Base path for rewrites
-# Keep "/" for root deployment, change to "/subfolder/" if deployed in a subdirectory
+# SECURITY: Disable directory browsing and MultiViews logic
+Options -Indexes -MultiViews
+
+# ROUTING: Enable rewrite engine and set base path
+# Change RewriteBase to /subfolder/ if not deployed at root
+RewriteEngine On
 RewriteBase /
 
-# Security: disable directory listing
-Options -Indexes
-
-# Redirect root URL "/" to index.php or index.html
-# index.php is preferred if both exist
+# ROUTING: Redirect root URL "/" to the main dashboard
 RewriteRule ^$ index.php [L]
 
-# Security: deny direct access to sensitive directories (including subpaths)
+# SECURITY: Deny direct access to core system directories
 RewriteRule ^core(?:/|$) - [F,L]
 RewriteRule ^data(?:/|$) - [F,L]
 RewriteRule ^vendor(?:/|$) - [F,L]
 
-# Security: deny direct access to sensitive files
+# SECURITY: Deny access to sensitive configuration files
 RewriteRule ^\.env$ - [F,L]
 RewriteRule ^composer\.(json|lock)$ - [F,L]
 
-# Security: deny access to hidden files and directories
-# Allow .well-known (required for TLS/ACME challenges)
+# SECURITY: Deny access to hidden files/folders (allow .well-known for SSL)
 RewriteRule ^\.(?!well-known/) - [F,L]
 
-# Pretty URLs for PHP endpoints
-# Example: /api/logs/get -> /api/logs/get.php
+# ROUTING: Rewrite pretty URLs to PHP endpoints
+# Example: /api/user-login -> /api/user-login.php
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.php -f
 RewriteRule ^(.+)$ $1.php [L,QSA]
