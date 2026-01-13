@@ -1,6 +1,6 @@
 # Archetype
 
-Archetype is a PHP-based headless CMS designed around a schema-driven HTTP API.
+Archetype is a PHP-based headless CMS designed around a schema-driven HTTP API. 
 It exposes content, users, files, and system operations exclusively through endpoints, without any built-in UI.
 
 The API is role-based (`ADMIN`, `EDITOR`, `PUBLIC`) and relies on token authentication.
@@ -10,7 +10,7 @@ This repository contains:
 - `specs.md`: the authoritative functional and technical specification
 - `checklist.md`: the active development roadmap
 - The core framework implementation
-- Internal developer tools for testing and debugging APIs
+- `admin.php`: Internal system diagnostic and dashboard tool
 
 Archetype is designed to be:
 - framework-agnostic
@@ -24,208 +24,141 @@ Archetype is designed to be:
 
 The project documentation is intentionally centralized and kept up to date.
 
-- [`specs.md`](./specs.md)  
-  Complete architecture and API reference:
-  - Overall system design
-  - File organization
-  - Environment configuration
-  - Database schema and relations
-  - Authentication, roles, permissions
-  - API routes (inputs, outputs, access rules)
-  - Schema validation
-  - Entries lifecycle and search
-  - Uploads, logs, trackers, email services
-
-- [`checklist.md`](./checklist.md)  
-  Living development roadmap, updated continuously as features are implemented.
+- [`specs.md`](./specs.md) - Complete architecture and API reference.
+- [`checklist.md`](./checklist.md) - Living development roadmap.
 
 ---
 
 ## Requirements
 
 - PHP 8.0 or newer
-- Composer
-- Git
-- A web server (Apache recommended)
+- Composer & Git
+- A web server (Apache with `mod_rewrite` enabled)
+- Database: SQLite or MySQL
 
 ---
 
 ## Installation
 
-### Clone the repository
-
+### 1. Clone the repository
 ```bash
 git clone <repository-url>
 cd archetype
-````
 
-### Install dependencies
+```
+
+### 2. Install dependencies
 
 ```bash
 composer install
+
 ```
 
-### Environment configuration
+### 3. Setup Filesystem Permissions
 
-Create your environment file:
+The web server (e.g., `www-data` or `_www`) requires write access to several directories for logging, database management, and uploads:
+
+```bash
+# Example for Linux/macOS to allow PHP write access
+mkdir -p data logs uploads
+chmod -R 775 data logs uploads
+# Ensure your web server user owns these directories
+sudo chown -R _www:_www data logs uploads 
+
+```
+
+### 4. Environment configuration
 
 ```bash
 cp .env.example .env
+
 ```
 
 Edit `.env` and configure:
 
-* `APP_URL` (public base URL, used for emails and links)
-* Database settings
-* SMTP settings
+* 
+`DB_TYPE` (SQLITE or MYSQL) 
 
-Example for a local SQLite setup:
 
-```ini
-APP_URL=http://127.0.0.1:8080
+* `SMTP_PORT` (Recommended: 587) and `SMTP_SECURE` (Recommended: tls)
 
-DB_TYPE=SQLITE
-DB_FILEPATH=data/database.sql
+---
 
-SMTP_USER=you@example.com
-SMTP_PASS=your_password
-SMTP_HOST=smtp.example.com
-SMTP_PORT=465
-SMTP_SECURE=ssl
+## Database Setup (MySQL via Homebrew)
+
+Archetype supports MySQL for production-grade environments.
+
+### Install and Start MySQL
+
+```bash
+brew install mysql
+brew services start mysql
+
+```
+
+### Create Database
+
+```bash
+mysql -u root -e "CREATE DATABASE archetype_db;"
+
 ```
 
 ---
 
-## Local Development Server (Apache / Homebrew)
+## Web Server Configuration (Apache)
 
-Archetype is designed to run behind a real web server.
-For local development on macOS, Apache via Homebrew provides a setup close to production behavior.
+Archetype relies on `.htaccess` for URL rewriting to handle API endpoints.
 
-### Install Apache
+### Enable Required Modules
 
-```bash
-brew install httpd
-```
-
-### Start / Restart Apache
-
-Apache can be managed as a background service:
-
-```bash
-brew services start httpd
-brew services restart httpd
-brew services stop httpd
-```
-
-By default, Homebrew Apache listens on port `8080`.
-
-Verify it is running by opening:
-
-```
-http://127.0.0.1:8080
-```
-
----
-
-### Apache Configuration
-
-Edit the main Apache configuration file:
-
-```bash
-nano /opt/homebrew/etc/httpd/httpd.conf
-```
-
-Ensure required modules are enabled:
+Ensure `mod_rewrite` is enabled in your `httpd.conf`:
 
 ```apache
 LoadModule rewrite_module lib/httpd/modules/mod_rewrite.so
+
 ```
 
-Enable `.htaccess` support:
+### Enable .htaccess Support
+
+Ensure `AllowOverride All` is set for the project directory to permit Archetype to manage routing and security:
 
 ```apache
-<Directory "/opt/homebrew/var/www">
+<Directory "/path/to/archetype">
     AllowOverride All
     Require all granted
 </Directory>
-```
 
-Restart Apache after changes:
-
-```bash
-brew services restart httpd
 ```
 
 ---
 
-### Virtual Host Example
+## Diagnostics and Testing
 
-Configure a virtual host pointing to the Archetype project directory:
+After installation, access the diagnostic dashboard to verify your configuration:
 
-```apache
-<VirtualHost *:8080>
-    ServerName archetype.local
-    DocumentRoot "/path/to/archetype"
+* **Diagnostic Dashboard**: `http://127.0.0.1:8080/admin.php`
+* This tool verifies:
+* Filesystem writability (Logs, Uploads, Data)
+* Critical file presence (.env, vendor, composer)
+* Apache URL rewriting for API routes
+* Security folder protections
 
-    <Directory "/path/to/archetype">
-        AllowOverride All
-        Require all granted
-    </Directory>
 
-    ErrorLog "/opt/homebrew/var/log/httpd/archetype-error.log"
-    CustomLog "/opt/homebrew/var/log/httpd/archetype-access.log" combined
-</VirtualHost>
-```
-
-Restart Apache once configured:
-
-```bash
-brew services restart httpd
-```
-
-Update your `.env` accordingly:
-
-```ini
-APP_URL=http://archetype.local:8080
-```
-
-If no virtual host is used:
-
-```ini
-APP_URL=http://127.0.0.1:8080
-```
-
----
-
-## Development Tools
-
-The repository includes internal HTML-based developer tools to test and inspect:
-
-* Logs
-* Email sending
-* API endpoints
-* Internal state
-
-These tools are **not intended for production exposure** and must only be enabled in controlled environments.
 
 ---
 
 ## Project Status
 
-Active development.
-
-Core infrastructure is in place. Current focus is on authentication, user lifecycle, and security-related features.
-
-High-level status:
+Core infrastructure is in place.
 
 * [x] Core bootstrap and routing
 * [x] Environment validation
 * [x] Database layer (SQLite / MySQL)
 * [x] Logging system and API
-* [x] Email service
-* [ ] User authentication flows
-* [ ] Password reset and security hardening
-* [ ] Content entries and schemas
+* [x] Email service (SMTP)
+* [x] User authentication and login 
+* [x] System Diagnostic Dashboard
+* [ ] Content entries and advanced search
 * [ ] Permissions and access control refinement
 
 See [`checklist.md`](./checklist.md) for the detailed and up-to-date roadmap.
