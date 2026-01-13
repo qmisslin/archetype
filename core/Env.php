@@ -68,7 +68,8 @@ class Env
         if (($_ENV['DB_TYPE'] ?? '') === 'SQLITE') {
             $dotenv->required('DB_PATH')->notEmpty();
         } else {
-            $dotenv->required(['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASS'])->notEmpty();
+            $dotenv->required(['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER'])->notEmpty();
+            $dotenv->required('DB_PASS');
         }
 
         $dotenv->required(['LOGS_PATH', 'UPLOADS_PATH'])->notEmpty();
