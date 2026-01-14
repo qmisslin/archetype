@@ -583,139 +583,225 @@ Whitelist of supported conditional methods:
 
 ---
 
-# Schemes description
+# Schemes Description
 
-Schemes define a data structure for values stored in the `ENTRIES` table.
+Schemes define the data structure for values stored in the `ENTRIES` table.
 
-## Field definition (properties)
+A scheme is composed of field definitions. Each field describes how a value is stored, validated, and accessed.
 
-### Required properties (for all field types)
+---
+
+## Field Definition (Properties)
+
+### Required Properties (for all field types)
+
 - `key` (string)  
-  Field identifier stored in entry JSON (e.g. `"article-name"`).
+  Field identifier stored in the entry JSON (e.g. `"article-name"`).
 
 - `label` (string)  
-  Human-readable label (UI-oriented).
-
-- `required` (boolean)  
-  Whether the value must be present.
-
-- `default` (any)  
-  Default value used when creating an entry (required for each field).
-
-- `type` (enum)  
-  Supported values: `STRING | BOOLEAN | NUMBER | INTEGER | FLOAT | ENTRIES | UPLOADS`.
-
-- `is-array` (boolean)  
-  Whether the stored value is an array (`true`) or a scalar (`false`).
+  Human-readable label, intended for UI display.
 
 - `access` (string[])  
-  Who can access this value, e.g. `["admin","editor","public"]`.
+  Defines who can access this value (e.g. `["admin","editor","public"]`).
 
-### `rules` (optional)
-Custom rules for validation (depend on each type validation).  
-If a key is not present, the rule is considered as not defined.
+- `required` (boolean)  
+  Indicates whether the value must be present.
 
-#### Entry reference rules
-- `scheme` (int)  
-  Only for `type == ENTRIES`: target scheme id referenced by this field.
+- `type` (enum)  
+  Supported values: `STRING | BOOLEAN | NUMBER | ENTRIES | UPLOADS`.
 
-#### Format (optional)
+- `is-array` (boolean)  
+  Defines whether the stored value is an array (`true`) or a scalar (`false`).
+
+---
+
+## Rules (optional)
+
+Custom validation rules depending on the field `type`.  
+If a rule key is not present, the rule is considered undefined and not applied.
+
+### Entry Reference Rules
+
+- `schemes` (int[])  
+  Only for `type == ENTRIES`.  
+  Defines the allowed target scheme IDs referenced by this field.
+
+### Format (optional)
+
 - `format` (string)  
-  Used to specify the semantic format of a field value.
+  Specifies the semantic format of the field value.
 
-Supported examples:
-- `duration`: duration in milliseconds (INT)
-- `timestamp`: Unix timestamp with milliseconds (INT)
-- `price`: monetary value (string formatted like `"value€"`)
-- `percentage`: number between 0 and 100
-- `rating`: bounded number between 0 and 5
-- `geo-point`: latitude/longitude (string formatted like `"lat:long"`)
-- `address`: structured address (string)
-- `markdown`: markdown content (string)
-- `html`: raw HTML (string)
-- `json`: free JSON content (string)
-- `hex-color`: hexadecimal color (string)
+---
 
-#### General rules
-- `enum` (array)  
-  Allowed values list (enum values).
+## Supported Types
 
-#### String rules
-- `min-char` (int)
+```
+
+STRING | BOOLEAN | NUMBER | ENTRIES | UPLOADS
+
+```
+
+Each type supports its own validation rules, described below.
+
+---
+
+## STRING
+
+### Supported formats
+- `html`
+- `xml`
+- `json`
+- `hex-color`
+- `address`
+- `markdown`
+- `enum` (value must be one of a predefined list)
+- `pattern` (custom regular expression)
+
+### Validation rules
+- `min-char` (int)  
 - `max-char` (int)
-- `pattern` (string)  
-  Regular expression.
+- `enum` (string[])  
+  Used only with `format: "enum"`.
 
-#### Number rules
+---
+
+## BOOLEAN
+
+### Supported formats
+- `boolean`
+
+No additional rules.  
+The value is always either `true` or `false`.
+
+---
+
+## NUMBER
+
+### Supported formats
+- `int`
+- `float`
+- `datetime` (timestamp in milliseconds)
+- `price` (currency rules apply)
+- `unit-value` (unit rules apply)
+- `enum` (value must be one of a predefined list)
+
+### Validation rules
+- `currency-symbol` (string)  
+  Used with `format: "price"`. Can be any character.
+
+- `currency-code` (string)  
+  ISO 4217 currency code (e.g. `EUR`, `USD`).
+
+- `unit` (string)  
+  Used with `format: "unit-value"`. Free-form unit identifier.
+
+- `step` (number)  
+  Rounding step for `int` or `float`.
+
+- `enum` (number[])  
+  Used only with `format: "enum"`.
+
 - `min-value` (number)
 - `max-value` (number)
-- `step` (number)  
-  Rounding step for floats.
 
-#### Array rules
+---
+
+## ENTRIES
+
+### Validation rules
+- `schemes` (int[])  
+  Allowed scheme IDs that can be referenced.
+
+No additional rules.  
+The stored value is always an integer (entry ID).
+
+---
+
+## UPLOADS
+
+### Validation rules
+- `mimetypes` (string[])  
+  Allowed MIME types.
+
+- `max-size` (int)  
+  Maximum file size in bytes.
+
+- `min-size` (int)  
+  Minimum file size in bytes.
+
+No additional rules.  
+The stored value is always an integer (upload ID).
+
+---
+
+## Additional Rules
+
+### Required Fields
+
+If `required` is set to `true`, the user must provide a value.  
+If `false`, the field key may be omitted entirely.
+
+When editing a scheme, setting `required` to `true` increments the scheme version.
+
+---
+
+### Array Constraints (`is-array: true`)
+
 - `min-length` (int)
 - `max-length` (int)
 
-#### Timestamp rules
-- `min` (int)  
-  Minimum date.
-- `max` (int|string)  
-  Maximum date.
-- `future-only` (boolean)  
-  Must be in the future only.
-- `past-only` (boolean)  
-  Must be in the past only.
+---
 
-#### Coordinates rules
-- `min-lat` (number)
-- `max-lat` (number)
-- `min-lng` (number)
-- `max-lng` (number)
-
-#### Upload reference rules
-- `mimetypes` (string[])  
-  Allowed mime types (e.g. images: `["image/jpeg","image/png"]`, videos: `["video/mp4"]`).
-- `max-size` (int)  
-  Maximum size in octets.
-
-## Example scheme
+## Example Scheme
 
 ```json
 [
   {
     "key": "article-name",
-    "label": "Nom de l'article",
-    "required": true,
-    "default": "Mon super article",
+    "label": "Article name",
     "type": "STRING",
+    "required": true,
     "is-array": false,
     "access": ["admin","editor","public"],
     "rules": {
-      "scheme": "schemeId",
-      "format": "timestamp",
-      "enum": [],
+      "format": "pattern",
       "min-char": 1,
       "max-char": 200,
-      "pattern": "",
+      "pattern": "^[a-zA-Z0-9\\s-]+$"
+    }
+  },
+  {
+    "key": "price",
+    "label": "Price",
+    "type": "NUMBER",
+    "required": true,
+    "is-array": false,
+    "access": ["admin","editor","public"],
+    "rules": {
+      "format": "price",
+      "currency-code": "EUR",
+      "currency-symbol": "€",
       "min-value": 0,
-      "max-value": 200,
-      "step": 0.01,
-      "min-length": 1,
-      "max-length": 200,
-      "min": 0,
-      "max": "",
-      "future-only": false,
-      "past-only": false,
-      "min-lat": 0,
-      "max-lat": 0,
-      "min-lng": 0,
-      "max-lng": 0,
+      "step": 0.01
+    }
+  },
+  {
+    "key": "gallery",
+    "label": "Image gallery",
+    "type": "UPLOADS",
+    "required": false,
+    "is-array": true,
+    "access": ["admin","editor"],
+    "rules": {
       "mimetypes": ["image/jpeg","image/png"],
-      "max-size": 256
+      "min-size": 1024,
+      "max-size": 5242880,
+      "min-length": 0,
+      "max-length": 20
     }
   }
 ]
-````
+```
 
 Then in the entry table you would have:
 
