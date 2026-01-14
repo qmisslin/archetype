@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Archetype - Entries Dashboard</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <header>
+            <a href="../admin.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info"></div>
+        </header>
+
+        <h2>Entries Management</h2>
+
+        <section>
+            <h3>POST /api/entries-list</h3>
+            <input id="l_scheme" type="number" placeholder="Scheme ID">
+            <select id="l_outdated">
+                <option value="0">Current Version Only</option>
+                <option value="1">Include Outdated</option>
+            </select>
+            <button
+                onclick="run('/api/entries-list', 'POST', {schemeId: v('l_scheme'), outdated: v('l_outdated') == '1'}, 'out-list')">
+                List Entries
+            </button>
+            <pre id="out-list"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/entries-get-by-id</h3>
+            <input id="g_id" type="number" placeholder="Entry ID">
+            <button onclick="run('/api/entries-get-by-id', 'POST', {entryId: v('g_id')}, 'out-get')">
+                Get Entry
+            </button>
+            <pre id="out-get"></pre>
+        </section>
+
+        <section>
+            <h3>Schemes Reference</h3>
+            <p><small>Load schemes to see available structures before creating entries.</small></p>
+            <button onclick="fetchSchemesList()">1. Refresh Schemes List</button>
+            <select id="ref_scheme_list">
+                <option value="">-- Select a Scheme --</option>
+            </select>
+            <button onclick="run('/api/schemes-get?schemeID=' + v('ref_scheme_list'), 'GET', null, 'out-ref')">
+                2. Get Scheme Definition
+            </button>
+            <pre id="out-ref"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/entries-create</h3>
+            <input id="c_scheme" type="number" placeholder="Scheme ID">
+            <textarea id="c_data" rows="5" placeholder='Data JSON (e.g. {"title": "Hello"})'></textarea>
+            <button
+                onclick="run('/api/entries-create', 'POST', {schemeId: v('c_scheme'), data: JSON.parse(v('c_data'))}, 'out-create')">
+                Create Entry
+            </button>
+            <pre id="out-create"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/entries-edit</h3>
+            <input id="e_id" type="number" placeholder="Entry ID">
+            <textarea id="e_data" rows="5" placeholder='New Data JSON'></textarea>
+            <button
+                onclick="run('/api/entries-edit', 'POST', {entryId: v('e_id'), data: JSON.parse(v('e_data'))}, 'out-edit')">
+                Update Entry
+            </button>
+            <pre id="out-edit"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/entries-search</h3>
+            <input id="s_scheme" type="number" placeholder="Scheme ID">
+            <select id="s_outdated">
+                <option value="0">Current Version Only</option>
+                <option value="1">Include Outdated</option>
+            </select>
+            <textarea id="s_ast" rows="5"
+                placeholder='Search AST'>["EQUAL", ["KEY", "title"], ["VALUE", "test"]]</textarea>
+            <button
+                onclick="run('/api/entries-search', 'POST', {schemeId: v('s_scheme'), outdated: v('s_outdated') == '1', search: JSON.parse(v('s_ast'))}, 'out-search')">
+                Search Entries
+            </button>
+            <pre id="out-search"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/entries-duplicate</h3>
+            <input id="d_id" type="number" placeholder="Entry ID to Duplicate">
+            <button onclick="run('/api/entries-duplicate', 'POST', {entryId: v('d_id')}, 'out-dup')">
+                Duplicate Entry
+            </button>
+            <pre id="out-dup"></pre>
+        </section>
+
+        <section>
+            <h3>DELETE /api/entries-remove</h3>
+            <input id="r_id" type="number" placeholder="Entry ID to Remove">
+            <button
+                onclick="if(confirm('Delete this entry?')) run('/api/entries-remove', 'DELETE', {entryId: v('r_id')}, 'out-rem')">
+                Remove Entry
+            </button>
+            <pre id="out-rem"></pre>
+        </section>
+
+        <script src="auth.js"></script>
+        <script>
+            const v = (id) => document.getElementById(id).value;
+
+            /**
+             * Custom function to populate the select dropdown with available schemes
+             */
+            async function fetchSchemesList() {
+                const select = document.getElementById('ref_scheme_list');
+                const session = auth.get();
+
+                try {
+                    const res = await fetch('/api/schemes-list', {
+                        method: 'GET',
+                        headers: { 'Authorization': `Bearer ${session.token}` }
+                    });
+                    const json = await res.json();
+
+                    if (json.status === 'success') {
+                        select.innerHTML = '<option value="">-- Select a Scheme --</option>';
+                        json.data.forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s.id;
+                            opt.textContent = `${s.id} : ${s.name}`;
+                            select.appendChild(opt);
+                        });
+                    }
+                } catch (e) {
+                    alert("Failed to load schemes list");
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', fetchSchemesList);
+        </script>
+    </body>
+
+</html>

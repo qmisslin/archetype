@@ -42,9 +42,10 @@ header('Content-Type: text/html; charset=utf-8');
     <section style="margin-bottom: 10px;">
         <div style="display: flex; gap: 5px; flex-wrap: wrap;">
             <button class="btn-sm" onclick="location.href='./public/users.html'">Users</button>
-            <button class="btn-sm" onclick="location.href='./public/schemes.html'">Schemes</button>
             <button class="btn-sm" onclick="location.href='./public/logs.html'">Logs</button>
             <button class="btn-sm" onclick="location.href='./public/mails.html'">Mails</button>
+            <button class="btn-sm" onclick="location.href='./public/schemes.html'">Schemes</button>
+            <button class="btn-sm" onclick="location.href='./public/entries.html'">Entries</button>
         </div>
     </section>
 
