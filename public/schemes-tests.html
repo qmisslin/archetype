@@ -345,6 +345,11 @@
                             log(`FAIL: ${test.l} | ${msg}`, 'fail');
                             console.log("Failed Payload:", payload);
                         }
+                        // Immediate cleanup: Delete the entry if it was successfully created
+                        if (success && res.data && res.data.id) {
+                            await api('/entries-remove', 'DELETE', { entryId: res.data.id });
+                        }
+                        
                         progressFill.style.width = `${((i + 1) / testCases.length) * 100}%`;
                     }
 
