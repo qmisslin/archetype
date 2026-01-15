@@ -168,6 +168,18 @@ class Schemes
         }
     }
 
+    public static function IsInSchemes(int $entryId, array $allowedSchemeIds): bool
+    {
+        if (empty($allowedSchemeIds)) return true;
+
+        $db = Database::get();
+        $stmt = $db->prepare("SELECT schemeId FROM ENTRIES WHERE id = ?");
+        $stmt->execute([$entryId]);
+        $entry = $stmt->fetch();
+
+        return $entry && in_array((int)$entry['schemeId'], $allowedSchemeIds);
+    }
+
     private static function save(int $id, array $fields, int $userId, bool $incrementVersion): void
     {
         $db = Database::get();

@@ -18,12 +18,18 @@ class Entries
             APIHelper::error("Scheme not found", 404);
         }
 
+        try {
+            Validator::validateEntry($data, $scheme['fields']);
+        } catch (\Exception $e) {
+            APIHelper::error($e->getMessage(), 400);
+        }
+
         $db = Database::get();
         $now = time();
         $stmt = $db->prepare("INSERT INTO ENTRIES (schemeId, schemeVersion, data, creation_timestamp, modification_timestamp, last_modification_userId) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $schemeId,
-            $scheme['version'], // 
+            $scheme['version'],
             json_encode($data),
             $now,
             $now,
@@ -47,6 +53,15 @@ class Entries
 
         if (!$entry) {
             APIHelper::error("Entry not found", 404);
+        }
+
+        // Fetch the current scheme version to validate against
+        $scheme = Schemes::Get((int)$entry['schemeId']);
+        
+        try {
+            Validator::validateEntry($data, $scheme['fields']);
+        } catch (\Exception $e) {
+            APIHelper::error($e->getMessage(), 400);
         }
 
         $stmt = $db->prepare("UPDATE ENTRIES SET data = ?, modification_timestamp = ?, last_modification_userId = ? WHERE id = ?");
