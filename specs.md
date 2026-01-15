@@ -116,7 +116,7 @@ The database stores several tables:
 - `access` (json): who can access this folder, example: `["PUBLIC","EDITOR","ADMIN"]`
 - `mime` (string, nullable): file mime
 - `extension` (string, nullable): file extension
-- `parentId` (reference, nullable): parent file (= folder)
+- `parentId` (reference, nullable): parent file
 - `creation timestamp`
 - `modification timestamp`
 - `last modification userId`
@@ -271,10 +271,10 @@ Example of computed statistics data for a log file:
 
 Endpoints:
 
-* `[ADMIN] [EDITOR]` **GET** `/api/trackers/list` ()
-* `[ADMIN] [EDITOR]` **POST** `/api/trackers/create` (name, description)
-* `[ADMIN] [EDITOR]` **PATCH** `/api/trackers/edit` (trackerId, name, description)
-* `[ADMIN] [EDITOR]` **DELETE** `/api/trackers/delete` (trackerId)
+* `[ADMIN] [EDITOR]` **GET** `/api/trackers-list` ()
+* `[ADMIN] [EDITOR]` **POST** `/api/trackers-create` (name, description)
+* `[ADMIN] [EDITOR]` **PATCH** `/api/trackers-edit` (trackerId, name, description)
+* `[ADMIN] [EDITOR]` **DELETE** `/api/trackers-delete` (trackerId)
 
 `List()`
 Lists all trackers stored in the database.
@@ -294,7 +294,7 @@ Deletes a tracker.
 
 Endpoints:
 
-* `[EDITOR] [ADMIN]` **POST** `/api/email/send` (string dest, string obj, string content)
+* `[EDITOR] [ADMIN]` **POST** `/api/email-send` (string dest, string obj, string content)
 
 `Send(string[] dest, string obj, string type, string content)`
 Sends an email. The `EMAIL_USER`/`EMAIL_PASS` account is used to send.
@@ -321,8 +321,8 @@ Mechanism:
 
 Endpoints:
 
-* `[ADMIN]` **DELETE** `/api/attemps/delete` (ip)
-* `[ADMIN]` **GET** `/api/attemps/list` ()
+* `[ADMIN]` **DELETE** `/api/attemps-delete` (ip)
+* `[ADMIN]` **GET** `/api/attemps-list` ()
 
 `get(ip, type)`
 Retrieves a value from the `ATTEMPS` table if it exists.
@@ -342,19 +342,19 @@ Retrieves the list of all attempts for all IPs.
 
 Endpoints:
 
-* `[ADMIN] [EDITOR]` **POST** `/api/users/PruneTokens` ()
-* `[PUBLIC]` **POST** `/api/users/CreateAdminUser` ()
-* `[PUBLIC]` **POST** `/api/users/Login` (string mail, string password) // ATTEMPTS
-* `[PUBLIC]` **POST** `/api/users/Logout` (string email, token)
-* `[PUBLIC]` **POST** `/api/users/LogoutEverywhere` (string email, token)
-* `[ADMIN]` **POST** `/api/users/CreateUser` (mail, name, role)
-* `[PUBLIC]` **POST** `/api/users/ForgotPassword` (mail) // ATTEMPTS
-* `[PUBLIC]` **POST** `/api/users/ChangePassword` (token, mail, password)
-* `[ADMIN]` **PATCH** `/api/users/ToggleUser` (userId, value)
-* `[OWNER] [ADMIN]` **DELETE** `/api/users/DeleteUser` (userId)
-* `[OWNER] [ADMIN]` **PATCH** `/api/users/Edit` (userId, name, email)
-* `[ADMIN]` **PATCH** `/api/users/SetRole` (userId, role)
-* `[ADMIN] [EDITOR]` **GET** `/api/users/GetUserList` ()
+* `[ADMIN] [EDITOR]` **POST** `/api/users-prune-tokens` ()
+* `[PUBLIC]` **POST** `/api/users-create-admin-user` ()
+* `[PUBLIC]` **POST** `/api/users-login` (string mail, string password) // ATTEMPTS
+* `[PUBLIC]` **POST** `/api/users-logout` (string email, token)
+* `[PUBLIC]` **POST** `/api/users-logout-everywhere` (string email, token)
+* `[ADMIN]` **POST** `/api/users-create-user` (mail, name, role)
+* `[PUBLIC]` **POST** `/api/users-forgot-password` (mail) // ATTEMPTS
+* `[PUBLIC]` **POST** `/api/users-change-password` (token, mail, password)
+* `[ADMIN]` **PATCH** `/api/users-toggle-user` (userId, value)
+* `[OWNER] [ADMIN]` **DELETE** `/api/users-delete-user` (userId)
+* `[OWNER] [ADMIN]` **PATCH** `/api/users-edit` (userId, name, email)
+* `[ADMIN]` **PATCH** `/api/users-set-role` (userId, role)
+* `[ADMIN] [EDITOR]` **GET** `/api/users-get-user-list` ()
 
 `PruneTokens()`
 Deletes all expired tokens from the database (or tokens whose users no longer exist).
@@ -415,26 +415,30 @@ Returns the list of users (id, name, email, enabled or not, role, creation date)
 
 Endpoints:
 
-* `[ADMIN] [EDITOR]` **POST** `/api/uploads/upload` (file, name, folderId (nullable), access (PUBLIC, EDITOR, ADMIN))
-* `[ADMIN] [EDITOR]` **POST** `/api/uploads/create` (name, folderId (nullable), access (PUBLIC, EDITOR, ADMIN))
-* `[ADMIN] [EDITOR]` **POST** `/api/uploads/replace` (fileId, file)
-* `[ADMIN] [EDITOR]` **DELETE** `/api/uploads/remove` (fileId)
-* `[ADMIN] [EDITOR]` **PATCH** `/api/uploads/edit` (fileId, name, access)
-* `[ADMIN] [EDITOR]` **GET** `/api/uploads/list` (folderId) folderId can be null for root folder
-* `[PUBLIC]` **GET** `/api/uploads/get` (fileId).
+* `[ADMIN] [EDITOR]` **POST** `/api/uploads-store` (file, name, folderId (nullable), access (PUBLIC, EDITOR, ADMIN))
+* `[ADMIN] [EDITOR]` **POST** `/api/uploads-create` (name, folderId (nullable), access (PUBLIC, EDITOR, ADMIN))
+* `[ADMIN] [EDITOR]` **POST** `/api/uploads-replace` (fileId, file)
+* `[ADMIN] [EDITOR]` **DELETE** `/api/uploads-remove` (fileId)
+* `[ADMIN] [EDITOR]` **PATCH** `/api/uploads-edit` (fileId, name, access)
+* `[ADMIN] [EDITOR]` **GET** `/api/uploads-list` (folderId) folderId can be null for root folder
+* `[PUBLIC]` **GET** `/api/uploads-get` (fileId).
 
-`upload(file, name, folderId(nullable), access [PUBLIC, EDITOR, ADMIN, ...])`
-Uploads the attached file into `/upload` and creates an entry through `Create()`.
+`store(file, name, folderId(nullable), access [PUBLIC, EDITOR, ADMIN, ...])`  
+Uploads the provided file into `data/uploads/` and creates an entry via `create()`.
 
-`create(name, parentFileId(nullable), access [PUBLIC, EDITOR, ADMIN, ...])`
-Creates a file or folder in the `UPLOADS` table.
-`upload` calls `create`. But if `create` is called alone, no file is provided and the entry is considered as a folder.
+`create(name, parentFileId(nullable), access [PUBLIC, EDITOR, ADMIN, ...])`  
+Creates a file or folder entry in the `UPLOADS` table.  
+`upload` internally calls `create`. When `create` is called on its own, no file is provided and the entry is treated as a folder.
 
-`replace(file, fileId)`
-Uploads and replaces an existing file.
+Note: a “folder” is a logical entry in the `UPLOADS` table. It does not represent a physical directory on disk.  
+All files are stored directly under `/data/uploads/`, which contains no subdirectories.
 
-`remove(fileId)`
-Delete a file.
+`replace(file, fileId)`  
+Uploads a new file and replaces the existing one.
+
+`remove(fileId)`  
+Deletes a file.  
+If the entry represents a folder in the `UPLOADS` table, the database entry is removed and the `parent` field of its child files is set to `null`.
 
 `edit(fileId)`
 Modify the data and access for a file
@@ -451,16 +455,16 @@ Check file access and serve file as is (to use it with <img src=""> for example)
 
 Routes:
 
-* `[ADMIN]` **POST** `/api/schemes/create` (name)
-* `[ADMIN]` **DELETE** `/api/schemes/remove` (schemeID)
-* `[ADMIN]` **PATCH** `/api/schemes/rename` (schemeID, name)
-* `[ADMIN]` **POST** `/api/schemes/addField` (schemeID, key, label, required, type, is-array, default, access, JSON rules)
-* `[ADMIN]` **GET** `/api/schemes/list` ()
-* `[ADMIN]` **GET** `/api/schemes/get` (schemeID)
-* `[ADMIN]` **DELETE** `/api/schemes/removeField` (schemeID, key)
-* `[ADMIN]` **PATCH** `/api/schemes/rekeyField` (schemeID, key, newKey)
-* `[ADMIN]` **PATCH** `/api/schemes/updateField` (schemeID, key, newField)
-* `[ADMIN]` **PATCH** `/api/schemes/indexField` (schemeID, key, index)
+* `[ADMIN]` **POST** `/api/schemes-create` (name)
+* `[ADMIN]` **DELETE** `/api/schemes-remove` (schemeID)
+* `[ADMIN]` **PATCH** `/api/schemes-rename` (schemeID, name)
+* `[ADMIN]` **POST** `/api/schemes-addField` (schemeID, key, label, required, type, is-array, default, access, JSON rules)
+* `[ADMIN]` **GET** `/api/schemes-list` ()
+* `[ADMIN]` **GET** `/api/schemes-get` (schemeID)
+* `[ADMIN]` **DELETE** `/api/schemes-removeField` (schemeID, key)
+* `[ADMIN]` **PATCH** `/api/schemes-rekeyField` (schemeID, key, newKey)
+* `[ADMIN]` **PATCH** `/api/schemes-updateField` (schemeID, key, newField)
+* `[ADMIN]` **PATCH** `/api/schemes-indexField` (schemeID, key, index)
 
 `create(name)`
 Creates a new (empty) schema.
@@ -505,13 +509,13 @@ Changes a field index in the form (does not change data).
 
 Routes:
 
-* `[ADMIN] [EDITOR]` **POST** `/api/entries/Create` (schemeId, data)
-* `[ADMIN] [EDITOR]` **PATCH** `/api/entries/Edit` (entryId, data)
-* `[ADMIN] [EDITOR]` **DELETE** `/api/entries/Remove` (entryId)
-* `[ADMIN] [EDITOR]` **POST** `/api/entries/Duplicate` (entryId)
-* `[PUBLIC]` **GET** `/api/entries/List` (schemeId, bool outdated)
-* `[PUBLIC]` **GET** `/api/entries/GetById` (entryId)
-* `[PUBLIC]` **POST** `/api/entries/Search` (scheme, bool outdated, json search)
+* `[ADMIN] [EDITOR]` **POST** `/api/entries-create` (schemeid, data)
+* `[ADMIN] [EDITOR]` **PATCH** `/api/entries-edit` (entryid, data)
+* `[ADMIN] [EDITOR]` **DELETE** `/api/entries-remove` (entryid)
+* `[ADMIN] [EDITOR]` **POST** `/api/entries-duplicate` (entryid)
+* `[PUBLIC]` **GET** `/api/entries-list` (schemeid, bool outdated)
+* `[PUBLIC]` **GET** `/api/entries-get-by-id` (entryid)
+* `[PUBLIC]` **POST** `/api/entries-search` (scheme, bool outdated, json search)
 
 `Create(schemeId, data)`
 Adds an entry that conforms to the current schema.
