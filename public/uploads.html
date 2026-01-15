@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Archetype - Uploads Dashboard</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <header>
+            <a href="../admin.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info"></div>
+        </header>
+
+        <h2>Uploads Management</h2>
+
+        <section>
+            <h3>GET /api/uploads-list</h3>
+            <input id="l_folder" type="number" placeholder="Folder ID (empty for root)">
+            <button
+                onclick="run('/api/uploads-list' + (v('l_folder') ? '?folderId='+v('l_folder') : ''), 'GET', null, 'out-list')">
+                List Content
+            </button>
+            <pre id="out-list"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/uploads-create (Folder)</h3>
+            <input id="c_name" type="text" placeholder="Folder Name">
+            <input id="c_parent" type="number" placeholder="Parent Folder ID (optional)">
+            <input id="c_access" type="text" value='["PUBLIC", "EDITOR", "ADMIN"]' placeholder='Access JSON'>
+            <button onclick="run('/api/uploads-create', 'POST', {
+            name: v('c_name'), 
+            folderId: v('c_parent'), 
+            access: JSON.parse(v('c_access'))
+        }, 'out-create')">
+                Create Virtual Folder
+            </button>
+            <pre id="out-create"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/uploads-store (File)</h3>
+            <input id="u_file" type="file">
+            <input id="u_name" type="text" placeholder="File Name">
+            <input id="u_parent" type="number" placeholder="Parent Folder ID (optional)">
+            <input id="u_access" type="text" value='["PUBLIC", "EDITOR", "ADMIN"]' placeholder='Access JSON'>
+            <button onclick="uploadFile()">Upload File</button>
+            <pre id="out-upload"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/uploads-replace</h3>
+            <input id="rep_id" type="number" placeholder="File ID to replace">
+            <input id="rep_file" type="file">
+            <button onclick="replaceFile()">Replace File Content</button>
+            <pre id="out-replace"></pre>
+        </section>
+
+        <section>
+            <h3>PATCH /api/uploads-edit</h3>
+            <input id="e_id" type="number" placeholder="File/Folder ID">
+            <input id="e_name" type="text" placeholder="New Name">
+            <input id="e_access" type="text" value='["PUBLIC", "EDITOR", "ADMIN"]' placeholder='Access JSON'>
+            <button onclick="run('/api/uploads-edit', 'PATCH', {
+            fileId: v('e_id'), 
+            name: v('e_name'), 
+            access: JSON.parse(v('e_access'))
+        }, 'out-edit')">
+                Update Metadata
+            </button>
+            <pre id="out-edit"></pre>
+        </section>
+
+        <section>
+            <h3>GET /api/uploads-get</h3>
+            <input id="g_id" type="number" placeholder="File ID">
+            <div style="display: flex; gap: 10px;">
+                <button onclick="run('/api/uploads-get?fileId=' + v('g_id'), 'GET', null, 'out-get')">
+                    Get Metadata (JSON)
+                </button>
+                <button onclick="window.open('/api/uploads-get?fileId=' + v('g_id'))">
+                    Open/Download File
+                </button>
+            </div>
+            <pre id="out-get"></pre>
+        </section>
+
+        <section>
+            <h3>DELETE /api/uploads-remove</h3>
+            <input id="r_id" type="number" placeholder="File/Folder ID">
+            <button
+                onclick="if(confirm('Delete this item?')) run('/api/uploads-remove', 'DELETE', {fileId: v('r_id')}, 'out-remove')">
+                Remove Item
+            </button>
+            <pre id="out-remove"></pre>
+        </section>
+
+        <script src="auth.js"></script>
+        <script>
+            const v = (id) => document.getElementById(id).value;
+
+            // Special handler for Multipart Uploads because auth.js run() forces JSON
+            async function runUpload(endpoint, formData, outputId) {
+                const out = document.getElementById(outputId);
+                out.textContent = 'Uploading...';
+                out.className = '';
+
+                const session = auth.get();
+                const headers = {};
+                if (session.token) headers['Authorization'] = `Bearer ${session.token}`;
+                // Do NOT set Content-Type, let the browser set the boundary for multipart
+
+                try {
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: headers,
+                        body: formData
+                    });
+
+                    const text = await res.text();
+                    try {
+                        out.textContent = JSON.stringify(JSON.parse(text), null, 2);
+                    } catch (e) {
+                        out.textContent = `Status ${res.status}:\n${text}`;
+                    }
+
+                    if (!res.ok) out.className = 'error-output';
+
+                } catch (e) {
+                    out.textContent = 'Error: ' + e.message;
+                    out.className = 'error-output';
+                }
+            }
+
+            function uploadFile() {
+                const formData = new FormData();
+                const fileInput = document.getElementById('u_file');
+
+                if (fileInput.files.length === 0) return alert("Select a file");
+
+                formData.append('file', fileInput.files[0]);
+                formData.append('name', v('u_name'));
+                if (v('u_parent')) formData.append('folderId', v('u_parent'));
+                formData.append('access', v('u_access'));
+
+                runUpload('/api/uploads-store', formData, 'out-upload');
+            }
+
+            function replaceFile() {
+                const formData = new FormData();
+                const fileInput = document.getElementById('rep_file');
+
+                if (!v('rep_id')) return alert("ID required");
+                if (fileInput.files.length === 0) return alert("Select a file");
+
+                formData.append('fileId', v('rep_id'));
+                formData.append('file', fileInput.files[0]);
+
+                runUpload('/api/uploads-replace', formData, 'out-replace');
+            }
+        </script>
+    </body>
+
+</html>
