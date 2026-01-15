@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Archetype - Ultimate Validation Test</title>
+        <link rel="stylesheet" href="style.css">
+        <style>
+            .test-row {
+                padding: 8px;
+                border-bottom: 1px solid #eee;
+                font-family: monospace;
+                font-size: 0.85rem;
+            }
+
+            .test-pass {
+                color: #10b981;
+                background: #f0fdf4;
+                border-left: 4px solid #10b981;
+            }
+
+            .test-fail {
+                color: #ef4444;
+                background: #fef2f2;
+                border-left: 4px solid #ef4444;
+                font-weight: bold;
+            }
+
+            .test-step {
+                background: #f8fafc;
+                color: #475569;
+                font-style: italic;
+                border-left: 4px solid #cbd5e1;
+            }
+
+            .test-header {
+                background: #0f172a;
+                color: #fff;
+                font-weight: bold;
+                text-transform: uppercase;
+                margin-top: 20px;
+            }
+
+            #test-results {
+                margin-top: 20px;
+                background: #fff;
+                border: 1px solid #000;
+                min-height: 400px;
+                padding: 0;
+                overflow-y: auto;
+                max-height: 700px;
+            }
+
+            .progress-bar {
+                height: 6px;
+                background: #eee;
+                margin-bottom: 20px;
+            }
+
+            #progress-fill {
+                height: 100%;
+                background: #000;
+                width: 0%;
+                transition: width 0.3s;
+            }
+
+            small {
+                color: #888;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <a href="../admin.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info"></div>
+        </header>
+
+        <h2>Ultimate Scheme Validator Test</h2>
+        <p>Open your browser console (F12) to see detailed JSON responses for failed tests.</p>
+
+        <button id="run-btn" onclick="runGauntlet()">RUN THE GAUNTLET</button>
+
+        <div class="progress-bar">
+            <div id="progress-fill"></div>
+        </div>
+        <div id="test-results">
+            <div style="padding:10px; color:#666;">Ready to start...</div>
+        </div>
+
+        <script src="auth.js"></script>
+        <script>
+            const resultsContainer = document.getElementById('test-results');
+            const progressFill = document.getElementById('progress-fill');
+            const runBtn = document.getElementById('run-btn');
+
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+            function log(message, type = 'step') {
+                const div = document.createElement('div');
+                div.className = `test-row test-${type}`;
+                const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+                div.innerHTML = `<small>[${time}]</small> ${message}`;
+                resultsContainer.appendChild(div);
+                resultsContainer.scrollTop = resultsContainer.scrollHeight;
+            }
+
+            async function api(endpoint, method, body = null) {
+                const session = auth.get();
+                try {
+                    const res = await fetch('../api' + endpoint, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session.token}`
+                        },
+                        body: body ? JSON.stringify(body) : null
+                    });
+
+                    const text = await res.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        return { status: 'error', message: 'JSON Parse Error' };
+                    }
+                } catch (e) {
+                    return { status: 'error', message: 'Network Error' };
+                }
+            }
+
+            async function runGauntlet() {
+                runBtn.disabled = true;
+                resultsContainer.innerHTML = '';
+                progressFill.style.width = '1%';
+
+                let passed = 0;
+                let totalTests = 0;
+                const uid = Math.floor(Math.random() * 9999);
+
+                try {
+                    // =========================================================
+                    // PHASE 1: ENVIRONMENT SETUP (3 SCHEMES)
+                    // =========================================================
+                    log("1. Setting up Environment...", 'header');
+
+                    // 1. Helper Scheme (Valid target for relations)
+                    let res = await api('/schemes-create', 'POST', { name: `Helper_${uid}` });
+                    const helperId = res.data.id;
+                    await api('/schemes-add-field', 'POST', { schemeID: helperId, field: { key: "val", label: "Val", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: {} } });
+                    res = await api('/entries-create', 'POST', { schemeId: helperId, data: { val: "Target" } });
+                    const helperEntryId = res.data.id;
+
+                    // 2. Forbidden Scheme (Forbidden target to test security)
+                    res = await api('/schemes-create', 'POST', { name: `Forbidden_${uid}` });
+                    const forbiddenId = res.data.id;
+                    await api('/schemes-add-field', 'POST', { schemeID: forbiddenId, field: { key: "val", label: "Val", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: {} } });
+                    res = await api('/entries-create', 'POST', { schemeId: forbiddenId, data: { val: "Spy" } });
+                    const forbiddenEntryId = res.data.id;
+
+                    // 3. MEGAZORD MASTER SCHEME (All possible types)
+                    res = await api('/schemes-create', 'POST', { name: `Megazord_${uid}` });
+                    const masterId = res.data.id;
+                    log(`✓ Schemes Created (Helper: ${helperId}, Forbidden: ${forbiddenId}, Master: ${masterId})`);
+
+                    // Master fields definition
+                    const fields = [
+                        // STRINGS
+                        { key: "s_len", label: "Len 2-5", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: { "min-char": 2, "max-char": 5 } },
+                        { key: "s_enum", label: "Enum A/B", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: { "enum": ["A", "B"] } },
+                        { key: "s_reg", label: "Regex 3Digits", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: { "pattern": "^\\d{3}$" } },
+                        { key: "s_hex", label: "Color", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: { "format": "hex-color" } },
+                        { key: "s_json", label: "JSON", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: { "format": "json" } },
+                        { key: "s_html", label: "HTML", type: "STRING", required: true, "is-array": false, access: ["ADMIN"], rules: { "format": "html" } },
+
+                        // NUMBERS
+                        { key: "n_int", label: "Int 10-20", type: "NUMBER", required: true, "is-array": false, access: ["ADMIN"], rules: { "format": "int", "min-value": 10, "max-value": 20 } },
+                        { key: "n_float", label: "Float Step 0.5", type: "NUMBER", required: true, "is-array": false, access: ["ADMIN"], rules: { "step": 0.5 } },
+
+                        // BOOLEAN
+                        { key: "b_bool", label: "Bool", type: "BOOLEAN", required: true, "is-array": false, access: ["ADMIN"], rules: {} },
+
+                        // ENTRIES
+                        { key: "ref", label: "Link", type: "ENTRIES", required: true, "is-array": false, access: ["ADMIN"], rules: { "schemes": [helperId] } },
+
+                        // ARRAYS
+                        { key: "arr_str", label: "Tags", type: "STRING", required: true, "is-array": true, access: ["ADMIN"], rules: { "min-length": 2, "max-length": 3 } },
+
+                        // OPTIONAL
+                        { key: "opt", label: "Optional", type: "STRING", required: false, "is-array": false, access: ["ADMIN"], rules: {} }
+                    ];
+
+                    for (const f of fields) {
+                        await api('/schemes-add-field', 'POST', { schemeID: masterId, field: f });
+                    }
+                    log("✓ Megazord Fields configured.");
+
+                    // =========================================================
+                    // PHASE 2: GENERATION OF 100+ TESTS
+                    // =========================================================
+
+                    // Base valid payload ("Golden Sample")
+                    const valid = {
+                        s_len: "abc", s_enum: "A", s_reg: "123", s_hex: "#FFFFFF", s_json: "{\"a\":1}", s_html: "<b>ok</b>",
+                        n_int: 15, n_float: 10.5, b_bool: true, ref: helperEntryId, arr_str: ["t1", "t2"], opt: "opt"
+                    };
+
+                    const testCases = [
+                        // --- 1. GLOBAL INTEGRITY (5) ---
+                        { l: "Global: Nominal Case", exp: true, d: { ...valid } },
+                        { l: "Global: Ghost Field", exp: false, d: { ...valid, ghost: "boo" } },
+                        { l: "Global: Missing Required", exp: false, d: { ...valid, s_len: undefined } },
+                        { l: "Global: Required is Null", exp: false, d: { ...valid, s_len: null } },
+                        { l: "Global: Required is Empty String", exp: false, d: { ...valid, s_len: "" } },
+
+                        // --- 2. STRING: LENGTH (6) ---
+                        { l: "Str: Too short (1)", exp: false, d: { ...valid, s_len: "a" } },
+                        { l: "Str: Min length exact (2)", exp: true, d: { ...valid, s_len: "ab" } },
+                        { l: "Str: Max length exact (5)", exp: true, d: { ...valid, s_len: "abcde" } },
+                        { l: "Str: Too long (6)", exp: false, d: { ...valid, s_len: "abcdef" } },
+                        { l: "Str: Type Int instead of String", exp: false, d: { ...valid, s_len: 123 } },
+                        { l: "Str: Type Bool instead of String", exp: false, d: { ...valid, s_len: true } },
+
+                        // --- 3. STRING: ENUM (4) ---
+                        { l: "Enum: Valid Value B", exp: true, d: { ...valid, s_enum: "B" } },
+                        { l: "Enum: Invalid Value C", exp: false, d: { ...valid, s_enum: "C" } },
+                        { l: "Enum: Case Sensitive (a)", exp: false, d: { ...valid, s_enum: "a" } },
+                        { l: "Enum: Empty String", exp: false, d: { ...valid, s_enum: "" } },
+
+                        // --- 4. STRING: REGEX (5) ---
+                        { l: "Regex: Valid match", exp: true, d: { ...valid, s_reg: "999" } },
+                        { l: "Regex: Alpha fail", exp: false, d: { ...valid, s_reg: "abc" } },
+                        { l: "Regex: Too many digits", exp: false, d: { ...valid, s_reg: "1234" } },
+                        { l: "Regex: Too few digits", exp: false, d: { ...valid, s_reg: "12" } },
+                        { l: "Regex: Special chars", exp: false, d: { ...valid, s_reg: "1.2" } },
+
+                        // --- 5. FORMAT: HEX COLOR (6) ---
+                        { l: "Hex: Valid 6 chars", exp: true, d: { ...valid, s_hex: "#000000" } },
+                        { l: "Hex: Valid 3 chars", exp: true, d: { ...valid, s_hex: "#F0F" } },
+                        { l: "Hex: Missing hash", exp: false, d: { ...valid, s_hex: "FFFFFF" } },
+                        { l: "Hex: Bad char G", exp: false, d: { ...valid, s_hex: "#GGFFFF" } },
+                        { l: "Hex: Too long", exp: false, d: { ...valid, s_hex: "#FFFFFFF" } },
+                        { l: "Hex: Too short", exp: false, d: { ...valid, s_hex: "#FF" } },
+
+                        // --- 6. FORMAT: JSON (5) ---
+                        { l: "JSON: Valid Array", exp: true, d: { ...valid, s_json: "[1,2]" } },
+                        { l: "JSON: Valid Scalar", exp: true, d: { ...valid, s_json: "\"string\"" } },
+                        { l: "JSON: Valid Int String", exp: true, d: { ...valid, s_json: "123" } },
+                        { l: "JSON: Invalid Syntax", exp: false, d: { ...valid, s_json: "{key:val}" } },
+                        { l: "JSON: Trailing comma", exp: false, d: { ...valid, s_json: "[1,]" } },
+
+                        // --- 7. FORMAT: HTML (4) ---
+                        { l: "HTML: Valid complex", exp: true, d: { ...valid, s_html: "<div class='a'>Test</div>" } },
+                        { l: "HTML: Invalid unclosed tag", exp: false, d: { ...valid, s_html: "<div><span>Text</div>" } },
+                        { l: "HTML: Invalid root", exp: false, d: { ...valid, s_html: "<root" } },
+                        { l: "HTML: Empty", exp: false, d: { ...valid, s_html: "" } },
+
+                        // --- 8. NUMBER: INT & RANGE (8) ---
+                        { l: "Int: Min value (10)", exp: true, d: { ...valid, n_int: 10 } },
+                        { l: "Int: Max value (20)", exp: true, d: { ...valid, n_int: 20 } },
+                        { l: "Int: Under min (9)", exp: false, d: { ...valid, n_int: 9 } },
+                        { l: "Int: Over max (21)", exp: false, d: { ...valid, n_int: 21 } },
+                        { l: "Int: Float passed (10.5)", exp: false, d: { ...valid, n_int: 10.5 } },
+                        { l: "Int: String '15'", exp: false, d: { ...valid, n_int: "15" } },
+                        { l: "Int: String '15.5'", exp: false, d: { ...valid, n_int: "15.5" } },
+                        { l: "Int: Null", exp: false, d: { ...valid, n_int: null } },
+
+                        // --- 9. NUMBER: FLOAT & STEP (7) ---
+                        { l: "Float: Valid step (10.0)", exp: true, d: { ...valid, n_float: 10.0 } },
+                        { l: "Float: Valid step (10.5)", exp: true, d: { ...valid, n_float: 10.5 } },
+                        { l: "Float: Bad step (10.2)", exp: false, d: { ...valid, n_float: 10.2 } },
+                        { l: "Float: Very small bad step (10.001)", exp: false, d: { ...valid, n_float: 10.001 } },
+                        { l: "Float: String '10.5'", exp: false, d: { ...valid, n_float: "10.5" } },
+                        { l: "Float: Negative Valid (-10.5)", exp: true, d: { ...valid, n_float: -10.5 } },
+                        { l: "Float: Zero Valid", exp: true, d: { ...valid, n_float: 0.0 } },
+
+                        // --- 10. BOOLEAN (6) ---
+                        { l: "Bool: True", exp: true, d: { ...valid, b_bool: true } },
+                        { l: "Bool: False", exp: true, d: { ...valid, b_bool: false } },
+                        { l: "Bool: Int 1", exp: false, d: { ...valid, b_bool: 1 } },
+                        { l: "Bool: Int 0", exp: false, d: { ...valid, b_bool: 0 } },
+                        { l: "Bool: String 'true'", exp: false, d: { ...valid, b_bool: "true" } },
+                        { l: "Bool: Null", exp: false, d: { ...valid, b_bool: null } },
+
+                        // --- 11. ENTRIES / REFERENCES (6) ---
+                        { l: "Ref: Valid ID", exp: true, d: { ...valid, ref: helperEntryId } },
+                        { l: "Ref: Non-existent ID", exp: false, d: { ...valid, ref: 999999 } },
+                        { l: "Ref: Forbidden Scheme ID", exp: false, d: { ...valid, ref: forbiddenEntryId } },
+                        { l: "Ref: String ID", exp: false, d: { ...valid, ref: "" + helperEntryId } },
+                        { l: "Ref: Float ID", exp: false, d: { ...valid, ref: 1.5 } },
+                        { l: "Ref: Null", exp: false, d: { ...valid, ref: null } },
+
+                        // --- 12. ARRAYS (8) ---
+                        { l: "Arr: Valid (2 items)", exp: true, d: { ...valid, arr_str: ["A", "B"] } },
+                        { l: "Arr: Valid (3 items)", exp: true, d: { ...valid, arr_str: ["A", "B", "C"] } },
+                        { l: "Arr: Too short (1 item)", exp: false, d: { ...valid, arr_str: ["A"] } },
+                        { l: "Arr: Too long (4 items)", exp: false, d: { ...valid, arr_str: ["A", "B", "C", "D"] } },
+                        { l: "Arr: Empty", exp: false, d: { ...valid, arr_str: [] } },
+                        { l: "Arr: Not an array (String)", exp: false, d: { ...valid, arr_str: "A,B" } },
+                        { l: "Arr: Not an array (Obj)", exp: false, d: { ...valid, arr_str: { 0: "A" } } },
+                        { l: "Arr: Mixed Types (Int inside)", exp: false, d: { ...valid, arr_str: ["A", 123] } },
+
+                        // --- 13. OPTIONAL FIELDS (5) ---
+                        { l: "Opt: Omitted", exp: true, d: { ...valid, opt: undefined } },
+                        { l: "Opt: Explicit Value", exp: true, d: { ...valid, opt: "Value" } },
+                        { l: "Opt: Empty String (Allowed for string)", exp: true, d: { ...valid, opt: "" } },
+                        { l: "Opt: Null (Type must still match)", exp: false, d: { ...valid, opt: null } },
+                        { l: "Opt: Wrong Type", exp: false, d: { ...valid, opt: 123 } },
+
+                        // --- 14. MASSIVE PAYLOAD (1) ---
+                        {
+                            l: "Massive Payload (Stress test)",
+                            exp: true,
+                            d: {
+                                ...valid,
+                                s_json: JSON.stringify(Array(100).fill("data")),
+                                s_html: "<div>" + "p".repeat(1000) + "</div>"
+                            }
+                        }
+                    ];
+
+                    log(`3. Starting Execution of ${testCases.length} Test Cases...`, 'header');
+
+
+                    for (let i = 0; i < testCases.length; i++) {
+                        const test = testCases[i];
+
+                        // Clone and cleanup undefined values to simulate missing fields
+                        const payload = JSON.parse(JSON.stringify(test.d));
+                        await sleep(25);
+
+                        const res = await api('/entries-create', 'POST', { schemeId: masterId, data: payload });
+                        const success = res.status === 'success';
+
+                        if (success === test.exp) {
+                            passed++;
+                            log(`PASS: ${test.l}`, 'pass');
+                        } else {
+                            console.group(`TEST FAILED: ${test.l}`);
+                            console.log("Sent Data:", test.d);
+                            console.log("Server Response:", res);
+                            console.groupEnd();
+
+                            let msg = res.message || 'Unknown error';
+                            if (success) msg = `Unexpected SUCCESS (ID: ${res.data?.id})`;
+                            log(`FAIL: ${test.l} | ${msg}`, 'fail');
+                            console.log("Failed Payload:", payload);
+                        }
+                        progressFill.style.width = `${((i + 1) / testCases.length) * 100}%`;
+                    }
+
+                    // =========================================================
+                    // PHASE 4: CLEANUP
+                    // =========================================================
+                    log("4. Cleanup...", 'header');
+                    await api('/schemes-remove', 'DELETE', { schemeID: masterId });
+                    await api('/schemes-remove', 'DELETE', { schemeID: helperId });
+                    await api('/schemes-remove', 'DELETE', { schemeID: forbiddenId });
+
+                    const score = Math.round((passed / testCases.length) * 100);
+                    const resultType = score === 100 ? 'pass' : 'fail';
+                    log(`--- FINAL SCORE: ${passed}/${testCases.length} (${score}%) ---`, resultType);
+
+                } catch (err) {
+                    console.error("CRITICAL:", err);
+                    log(`CRITICAL ERROR: ${err.message}`, 'fail');
+                } finally {
+                    runBtn.disabled = false;
+                }
+            }
+        </script>
+
+    </body>
+
+</html>
