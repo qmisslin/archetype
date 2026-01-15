@@ -118,6 +118,18 @@ class Database
                 creation_timestamp INTEGER NOT NULL,
                 modification_timestamp INTEGER NOT NULL,
                 last_modification_userId INTEGER NOT NULL
+            )",
+            "CREATE TABLE IF NOT EXISTS UPLOADS (
+                id $pk,
+                name VARCHAR(255) NOT NULL,
+                filepath VARCHAR(255) DEFAULT NULL,
+                access TEXT NOT NULL,
+                mime VARCHAR(100) DEFAULT NULL,
+                extension VARCHAR(20) DEFAULT NULL,
+                parentId INTEGER DEFAULT NULL,
+                creation_timestamp INTEGER NOT NULL,
+                modification_timestamp INTEGER NOT NULL,
+                last_modification_userId INTEGER NOT NULL
             )"
         ];
 
