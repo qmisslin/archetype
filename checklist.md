@@ -42,22 +42,22 @@
 - [x] `index.php` & `/public` dashboards: Developer tools (Logs, Users, Mails, Reset)
 
 ### 6) Schemes
-- [ ] `core/Schemes.php`: CRUD operations on JSON schemas
-- [ ] `core/Schemes.php`: Field management (add/remove/rekey/update)
-- [ ] Version handling + entry migrations
-- [ ] Logs: every schema mutation -> `INF` (schemeId, version, userId)
+- [x] `core/Schemes.php`: CRUD operations on JSON schemas
+- [x] `core/Schemes.php`: Field management (add/remove/rekey/update)
+- [x] Version handling + entry migrations
+- [x] Logs: every schema mutation -> `INF` (schemeId, version, userId)
 
 ### 7) Entries
-- [ ] `core/Entries.php`: CRUD operations for content
-- [ ] Data validation engine (validate input against Scheme rules)
-- [ ] Access control: filter fields based on user role
-- [ ] `Search` AST: Implement JSON-based search syntax (whitelist)
+- [x] `core/Entries.php`: CRUD operations for content
+- [x] Data validation engine (validate input against Scheme rules)
+- [x] Access control: filter fields based on user role
+- [x] `Search` AST: Implement JSON-based search syntax (whitelist)
 
 ### 8) Uploads
-- [ ] `core/Uploads.php`: File management & Virtual folders
-- [ ] Storage security: mime/extension checks + path traversal prevention
-- [ ] Access control: serve files based on `access[]` rules
-- [ ] API Routes: upload, replace, list, get
+- [x] `core/Uploads.php`: File management & Virtual folders
+- [x] Storage security: mime/extension checks + path traversal prevention
+- [x] Access control: serve files based on `access[]` rules
+- [x] API Routes: upload, replace, list, get
 
 ### 9) Trackers
 - [ ] `core/Trackers.php`: CRUD operations
