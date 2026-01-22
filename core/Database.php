@@ -130,6 +130,14 @@ class Database
                 creation_timestamp INTEGER NOT NULL,
                 modification_timestamp INTEGER NOT NULL,
                 last_modification_userId INTEGER NOT NULL
+            )",
+            "CREATE TABLE IF NOT EXISTS TRACKERS (
+                id $pk,
+                name VARCHAR(255) NOT NULL,
+                description TEXT DEFAULT NULL,
+                creation_timestamp INTEGER NOT NULL,
+                modification_timestamp INTEGER NOT NULL,
+                last_modification_userId INTEGER NOT NULL
             )"
         ];
 
