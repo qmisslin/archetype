@@ -41,13 +41,13 @@ header('Content-Type: text/html; charset=utf-8');
 
     <section style="margin-bottom: 10px;">
         <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-            <button class="btn-sm" onclick="location.href='./public/users.html'">Users</button>
-            <button class="btn-sm" onclick="location.href='./public/logs.html'">Logs</button>
-            <button class="btn-sm" onclick="location.href='./public/mails.html'">Mails</button>
-            <button class="btn-sm" onclick="location.href='./public/schemes.html'">Schemes</button>
-            <button class="btn-sm" onclick="location.href='./public/entries.html'">Entries</button>
-            <button class="btn-sm" onclick="location.href='./public/schemes-tests.html'">Schemes Tests</button>
-            <button class="btn-sm" onclick="location.href='./public/uploads.html'">Uploads</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/users.html'">Users</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/logs.html'">Logs</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/mails.html'">Mails</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/schemes.html'">Schemes</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/entries.html'">Entries</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/schemes-tests.html'">Schemes Tests</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/uploads.html'">Uploads</button>
         </div>
     </section>
 
