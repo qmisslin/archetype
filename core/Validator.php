@@ -102,13 +102,39 @@ class Validator
 
             case 'UPLOADS':
                 if (!is_int($value)) throw new \Exception("'{$key}' must be an upload ID (integer).");
-                // TODO : Further MIME validation can be added here
+                self::checkUpload($value, $rules, $key);
                 break;
         }
 
         // Global Enum Rule
         if (isset($rules['enum']) && is_array($rules['enum']) && !in_array($value, $rules['enum'])) {
             throw new \Exception("'{$key}' value is not in the allowed list.");
+        }
+    }
+
+    private static function checkUpload(int $id, array $rules, string $key): void
+    {
+        // Fetch file metadata
+        $fileStats = Uploads::GetFileStats($id);
+        if (!$fileStats) {
+            throw new \Exception("'{$key}' references a non-existent file.");
+        }
+
+        // MIME Type Validation
+        if (isset($rules['mimetypes']) && is_array($rules['mimetypes'])) {
+            if (!in_array($fileStats['mime'], $rules['mimetypes'])) {
+                throw new \Exception("'{$key}' has an invalid MIME type ({$fileStats['mime']}).");
+            }
+        }
+
+        // Min Size Validation
+        if (isset($rules['min-size']) && $fileStats['size'] < $rules['min-size']) {
+            throw new \Exception("'{$key}' file is too small ({$fileStats['size']} bytes). Minimum required: {$rules['min-size']}.");
+        }
+
+        // Max Size Validation
+        if (isset($rules['max-size']) && $fileStats['size'] > $rules['max-size']) {
+            throw new \Exception("'{$key}' file is too large ({$fileStats['size']} bytes). Maximum allowed: {$rules['max-size']}.");
         }
     }
 

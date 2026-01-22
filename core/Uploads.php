@@ -233,4 +233,22 @@ class Uploads
             if ($parent['filepath'] !== null) throw new \Exception("Parent ID is not a folder");
         }
     }
+
+    public static function GetFileStats(int $id): ?array
+    {
+        $file = self::getById($id);
+        if (!$file) return null;
+
+        if ($file['filepath'] === null) {
+            return ['mime' => 'application/x-directory', 'size' => 0];
+        }
+
+        $path = Env::getUploadsPath() . $file['filepath'];
+        $size = file_exists($path) ? filesize($path) : 0;
+
+        return [
+            'mime' => $file['mime'],
+            'size' => $size
+        ];
+    }
 }
