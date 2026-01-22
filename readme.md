@@ -10,7 +10,7 @@ This repository contains:
 - `specs.md`: the authoritative functional and technical specification
 - `checklist.md`: the active development roadmap
 - The core framework implementation
-- `admin.php`: Internal system diagnostic and dashboard tool
+- `dashboard.php`: Internal system diagnostic and dashboard tool
 
 Archetype is designed to be:
 - framework-agnostic
@@ -132,7 +132,7 @@ Ensure `AllowOverride All` is set for the project directory to permit Archetype 
 
 After installation, access the diagnostic dashboard to verify your configuration:
 
-* **Diagnostic Dashboard**: `http://127.0.0.1:8080/admin.php`
+* **Diagnostic Dashboard**: `http://127.0.0.1:8080/dashboard.php`
 * This tool verifies:
 * Filesystem writability (Logs, Uploads, Data)
 * Critical file presence (.env, vendor, composer)
