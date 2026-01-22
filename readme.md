@@ -124,7 +124,6 @@ Ensure `AllowOverride All` is set for the project directory to permit Archetype 
     AllowOverride All
     Require all granted
 </Directory>
-
 ```
 
 ---
