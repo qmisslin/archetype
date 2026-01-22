@@ -27,6 +27,9 @@ The project documentation is intentionally centralized and kept up to date.
 - [`specs.md`](./specs.md) - Complete architecture and API reference.
 - [`checklist.md`](./checklist.md) - Living development roadmap.
 
+Each endpoint is described with its HTTP method, route, expected parameters, and a short functional description.  
+Any change to the API must be reflected in [`api.md`](./api.md).
+
 ---
 
 ## Requirements
