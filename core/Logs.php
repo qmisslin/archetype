@@ -10,9 +10,6 @@ use PDO;
  */
 class Logs
 {
-    // private const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3 MB (prod limit)
-    private const MAX_FILE_SIZE = 10 * 1024; // 10 KB (test limit)
-
     private static ?string $currentLogFile = null;
     private static ?int $currentLogId = null;
 
@@ -34,7 +31,7 @@ class Logs
             if (file_exists($filePath)) {
                 clearstatcache(true, $filePath);
                 
-                if (filesize($filePath) < self::MAX_FILE_SIZE) {
+                if (filesize($filePath) < Env::getLogMaxFileSize()) {
                     self::$currentLogId = (int)$lastLog['id'];
                     self::$currentLogFile = $lastLog['logfile'];
                     return ['id' => self::$currentLogId, 'file' => self::$currentLogFile];

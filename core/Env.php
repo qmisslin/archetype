@@ -56,6 +56,11 @@ class Env
         return rtrim(self::resolveAndPrepare('UPLOADS_PATH'), '/') . '/';
     }
 
+    public static function getLogMaxFileSize(): int
+    {
+        return isset($_ENV['LOG_MAX_FILE_SIZE']) ? (int)$_ENV['LOG_MAX_FILE_SIZE'] : 3145728;
+    }
+
     private static function validate(Dotenv $dotenv): void
     {
         $dotenv->required(['APP_URL', 'RESET_PASSWORD_PATH'])->notEmpty();
