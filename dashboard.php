@@ -48,6 +48,7 @@ header('Content-Type: text/html; charset=utf-8');
             <button class="btn-sm" onclick="location.href='./dashboard/entries.html'">Entries</button>
             <button class="btn-sm" onclick="location.href='./dashboard/schemes-tests.html'">Schemes Tests</button>
             <button class="btn-sm" onclick="location.href='./dashboard/uploads.html'">Uploads</button>
+            <button class="btn-sm" onclick="location.href='./dashboard/trackers.html'">Trackers</button>
         </div>
     </section>
 

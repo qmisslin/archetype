@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Archetype - Trackers Dashboard</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <header>
+            <a href="../dashboard.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info"></div>
+        </header>
+
+        <h2>Trackers Management</h2>
+
+        <section>
+            <h3>GET /api/trackers-list</h3>
+            <button onclick="run('/api/trackers-list', 'GET', null, 'out-list')">
+                List All Trackers
+            </button>
+            <pre id="out-list"></pre>
+        </section>
+
+        <section>
+            <h3>POST /api/trackers-create</h3>
+            <input id="c_name" type="text" placeholder="Tracker Name">
+            <input id="c_desc" type="text" placeholder="Description (optional)">
+            <button onclick="run('/api/trackers-create', 'POST', {
+            name: v('c_name'), 
+            description: v('c_desc')
+        }, 'out-create')">
+                Create Tracker
+            </button>
+            <pre id="out-create"></pre>
+        </section>
+
+        <section>
+            <h3>PATCH /api/trackers-edit</h3>
+            <input id="e_id" type="number" placeholder="Tracker ID">
+            <input id="e_name" type="text" placeholder="New Name">
+            <input id="e_desc" type="text" placeholder="New Description">
+            <button onclick="run('/api/trackers-edit', 'PATCH', {
+            trackerId: v('e_id'), 
+            name: v('e_name'), 
+            description: v('e_desc')
+        }, 'out-edit')">
+                Update Tracker
+            </button>
+            <pre id="out-edit"></pre>
+        </section>
+
+        <section>
+            <h3>DELETE /api/trackers-delete</h3>
+            <input id="d_id" type="number" placeholder="Tracker ID">
+            <button
+                onclick="if(confirm('Delete this tracker?')) run('/api/trackers-delete', 'DELETE', {trackerId: v('d_id')}, 'out-delete')">
+                Delete Tracker
+            </button>
+            <pre id="out-delete"></pre>
+        </section>
+
+        <script src="auth.js"></script>
+        <script>
+            const v = (id) => document.getElementById(id).value;
+        </script>
+    </body>
+
+</html>
