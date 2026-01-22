@@ -54,4 +54,21 @@ class APIHelper
         ]);
         exit();
     }
+
+    /**
+     * Handles self-documentation.
+     * If 'help' query param is present, outputs the spec and exits.
+     * * @param array $spec The endpoint specification (method, params, description, access).
+     */
+    public static function document(array $spec): void
+    {
+        if (isset($_GET['help'])) {
+            $output = [
+                'endpoint' => basename($_SERVER['SCRIPT_FILENAME']),
+                'documentation' => $spec
+            ];
+            
+            self::success($output);
+        }
+    }
 }
