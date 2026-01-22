@@ -4,6 +4,18 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Trackers;
 
+APIHelper::document([
+    'method' => 'PATCH',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Updates an existing tracker.',
+    'params' => [
+        'trackerId' => ['type' => 'int', 'required' => true],
+        'name' => ['type' => 'string', 'required' => true],
+        'description' => ['type' => 'string', 'required' => false]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 

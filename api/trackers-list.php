@@ -4,6 +4,14 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Trackers;
 
+APIHelper::document([
+    'method' => 'GET',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Lists all trackers.',
+    'params' => [],
+    'returns' => ['array of trackers']
+]);
+
 Auth::check(['ADMIN', 'EDITOR']);
 
 try {

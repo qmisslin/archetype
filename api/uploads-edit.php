@@ -4,6 +4,18 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Uploads;
 
+APIHelper::document([
+    'method' => 'PATCH',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Updates metadata (name, access) of a file/folder.',
+    'params' => [
+        'fileId' => ['type' => 'int', 'required' => true],
+        'name' => ['type' => 'string', 'required' => true],
+        'access' => ['type' => 'array', 'required' => false]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 

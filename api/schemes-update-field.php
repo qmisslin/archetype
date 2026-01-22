@@ -4,6 +4,18 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Schemes;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'PATCH',
+    'role' => 'ADMIN',
+    'description' => 'Updates an existing field definition.',
+    'params' => [
+        'schemeID' => ['type' => 'int', 'required' => true],
+        'key' => ['type' => 'string', 'required' => true],
+        'field' => ['type' => 'json/array', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN']);
 $body = $router->getBody();
 $id = (int)($body['schemeID'] ?? 0);

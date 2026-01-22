@@ -4,6 +4,16 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Uploads;
 
+APIHelper::document([
+    'method' => 'GET',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Lists files and folders inside a directory.',
+    'params' => [
+        'folderId' => ['type' => 'int', 'required' => false, 'desc' => 'Null for root']
+    ],
+    'returns' => ['array of files/folders']
+]);
+
 Auth::check(['ADMIN', 'EDITOR']);
 
 $folderId = isset($_GET['folderId']) && $_GET['folderId'] !== '' ? (int)$_GET['folderId'] : null;

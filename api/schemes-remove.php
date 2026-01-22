@@ -5,6 +5,16 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Schemes;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'DELETE',
+    'role' => 'ADMIN',
+    'description' => 'Deletes a scheme and all associated entries.',
+    'params' => [
+        'schemeID' => ['type' => 'int', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 Auth::check(['ADMIN']);
 
 $body = $router->getBody();

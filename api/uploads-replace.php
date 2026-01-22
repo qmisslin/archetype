@@ -4,6 +4,17 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Uploads;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Replaces the physical file content of an existing entry.',
+    'params' => [
+        'fileId' => ['type' => 'int', 'required' => true],
+        'file' => ['type' => 'file', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 
 $fileId = $_POST['fileId'] ?? null;

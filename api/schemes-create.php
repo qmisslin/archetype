@@ -4,6 +4,16 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Schemes;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN',
+    'description' => 'Creates a new empty scheme.',
+    'params' => [
+        'name' => ['type' => 'string', 'required' => true]
+    ],
+    'returns' => ['id' => 'int']
+]);
+
 $user = Auth::check(['ADMIN']);
 $name = $router->getBody()['name'] ?? '';
 

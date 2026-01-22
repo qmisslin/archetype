@@ -5,6 +5,17 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Entries;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Creates a new entry based on a scheme.',
+    'params' => [
+        'schemeId' => ['type' => 'int', 'required' => true],
+        'data' => ['type' => 'json/array', 'required' => true]
+    ],
+    'returns' => ['id' => 'int', 'message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 

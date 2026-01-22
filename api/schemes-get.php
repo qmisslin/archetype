@@ -4,6 +4,16 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Schemes;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'GET',
+    'role' => 'ADMIN',
+    'description' => 'Retrieves full definition of a scheme.',
+    'params' => [
+        'schemeID' => ['type' => 'int', 'required' => true]
+    ],
+    'returns' => ['scheme object']
+]);
+
 Auth::check(['ADMIN']);
 $id = (int)($router->getBody()['schemeID'] ?? 0);
 $scheme = Schemes::Get($id);

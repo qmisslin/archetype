@@ -4,6 +4,17 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Schemes;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'PATCH',
+    'role' => 'ADMIN',
+    'description' => 'Renames a scheme.',
+    'params' => [
+        'schemeID' => ['type' => 'int', 'required' => true],
+        'name' => ['type' => 'string', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN']);
 $body = $router->getBody();
 $id = (int)($body['schemeID'] ?? 0);

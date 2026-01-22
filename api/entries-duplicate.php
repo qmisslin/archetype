@@ -5,6 +5,16 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Entries;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Duplicates an existing entry.',
+    'params' => [
+        'entryId' => ['type' => 'int', 'required' => true]
+    ],
+    'returns' => ['id' => 'int', 'message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 $entryId = (int)($body['entryId'] ?? 0);

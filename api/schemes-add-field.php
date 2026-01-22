@@ -4,6 +4,17 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Schemes;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN',
+    'description' => 'Adds a new field definition to a scheme.',
+    'params' => [
+        'schemeID' => ['type' => 'int', 'required' => true],
+        'field' => ['type' => 'json/array', 'required' => true, 'desc' => 'Field definition']
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN']);
 $body = $router->getBody();
 $id = (int)($body['schemeID'] ?? 0);

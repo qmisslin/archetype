@@ -5,6 +5,16 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Logs;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'GET',
+    'role' => 'ADMIN',
+    'description' => 'Downloads a raw log file.',
+    'params' => [
+        'filename' => ['type' => 'string', 'required' => true]
+    ],
+    'returns' => ['binary file stream']
+]);
+
 Auth::check(['ADMIN']);
 
 $params = $router->getBody();

@@ -4,6 +4,18 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Uploads;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Creates a virtual folder.',
+    'params' => [
+        'name' => ['type' => 'string', 'required' => true],
+        'folderId' => ['type' => 'int', 'required' => false, 'desc' => 'Parent Folder ID'],
+        'access' => ['type' => 'array', 'required' => false, 'default' => 'PUBLIC,EDITOR,ADMIN']
+    ],
+    'returns' => ['id' => 'int', 'message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 

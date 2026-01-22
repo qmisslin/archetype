@@ -4,6 +4,19 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Uploads;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Uploads and stores a new physical file.',
+    'params' => [
+        'file' => ['type' => 'file', 'required' => true, 'desc' => 'Multipart file'],
+        'name' => ['type' => 'string', 'required' => true],
+        'folderId' => ['type' => 'int', 'required' => false],
+        'access' => ['type' => 'json', 'required' => false]
+    ],
+    'returns' => ['id' => 'int', 'message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 
 // Params come from $_POST for multipart/form-data

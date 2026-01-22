@@ -5,6 +5,16 @@ require_once __DIR__ . '/../core/Boot.php';
 use Archetype\Core\APIHelper;
 use Archetype\Core\Users;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'PUBLIC',
+    'description' => 'Initiates password reset process (sends email).',
+    'params' => [
+        'email' => ['type' => 'string', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 // Public route, no auth check.
 
 $body = $router->getBody();

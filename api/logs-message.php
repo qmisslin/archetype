@@ -4,6 +4,17 @@ require_once __DIR__ . '/../core/Boot.php';
 use Archetype\Core\APIHelper;
 use Archetype\Core\Logs;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'PUBLIC',
+    'description' => 'Appends a log entry to the current log file.',
+    'params' => [
+        'type' => ['type' => 'enum', 'required' => false, 'values' => ['INF', 'WRN', 'ERR'], 'default' => 'INF'],
+        '*' => ['type' => 'mixed', 'desc' => 'Any other key-value pairs to log']
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 // Public route, no auth check.
 
 // Retrieve data

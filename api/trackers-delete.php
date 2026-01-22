@@ -4,6 +4,16 @@ use Archetype\Core\Auth;
 use Archetype\Core\APIHelper;
 use Archetype\Core\Trackers;
 
+APIHelper::document([
+    'method' => 'DELETE',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Deletes a tracker.',
+    'params' => [
+        'trackerId' => ['type' => 'int', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 

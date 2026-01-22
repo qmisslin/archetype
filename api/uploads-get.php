@@ -5,6 +5,16 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Uploads;
 use Archetype\Core\Env;
 
+APIHelper::document([
+    'method' => 'GET',
+    'role' => 'PUBLIC (Controlled)',
+    'description' => 'Serves the file content or folder metadata if access allows.',
+    'params' => [
+        'fileId' => ['type' => 'int', 'required' => true]
+    ],
+    'returns' => ['binary stream | json metadata']
+]);
+
 // Public access allowed, but check internal role permissions
 $user = Auth::user(); 
 $role = $user['role'] ?? 'PUBLIC';

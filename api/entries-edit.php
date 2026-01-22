@@ -5,6 +5,17 @@ use Archetype\Core\APIHelper;
 use Archetype\Core\Entries;
 use Archetype\Core\Auth;
 
+APIHelper::document([
+    'method' => 'PATCH',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Updates an existing entry.',
+    'params' => [
+        'entryId' => ['type' => 'int', 'required' => true],
+        'data' => ['type' => 'json/array', 'required' => true]
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 $user = Auth::check(['ADMIN', 'EDITOR']);
 $body = $router->getBody();
 

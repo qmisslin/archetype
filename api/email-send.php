@@ -7,6 +7,19 @@ use Archetype\Core\Email;
 use Archetype\Core\Auth;
 use Archetype\Core\Router;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'ADMIN, EDITOR',
+    'description' => 'Sends an email to one or multiple recipients.',
+    'params' => [
+        'dest' => ['type' => 'string|array', 'required' => true, 'desc' => 'Email(s) of recipient(s)'],
+        'obj' => ['type' => 'string', 'required' => true, 'desc' => 'Subject line'],
+        'content' => ['type' => 'string', 'required' => true, 'desc' => 'Body content'],
+        'type' => ['type' => 'string', 'required' => false, 'default' => 'text', 'desc' => 'text or html']
+    ],
+    'returns' => ['message' => 'string']
+]);
+
 Auth::check(['ADMIN', 'EDITOR']);
 
 $body = $router->getBody();

@@ -5,6 +5,14 @@ require_once __DIR__ . '/../core/Boot.php';
 use Archetype\Core\APIHelper;
 use Archetype\Core\Users;
 
+APIHelper::document([
+    'method' => 'POST',
+    'role' => 'PUBLIC',
+    'description' => 'Bootstraps the first Admin user if none exists.',
+    'params' => [],
+    'returns' => ['message' => 'string']
+]);
+
 // Public route, no auth check.
 
 try {
