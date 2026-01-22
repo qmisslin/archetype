@@ -60,10 +60,10 @@
 - [x] API Routes: upload, replace, list, get
 
 ### 9) Trackers
-- [ ] `core/Trackers.php`: CRUD operations
-- [ ] API Routes: `/api/trackers/*`
+- [x] `core/Trackers.php`: CRUD operations
+- [x] API Routes: `/api/trackers/*`
 
 ### 10) Quality & Tests
+- [x] Integration tests: full route testing with Auth
+- [x] Documentation: Update `specs.md` with final implementation details
 - [ ] Unit tests: schema validation, AST logic, log parsing
-- [ ] Integration tests: full route testing with Auth
-- [ ] Documentation: Update `specs.md` with final implementation details
