@@ -15,7 +15,8 @@ class TestRunner {
             forbiddenId: null,
             masterId: null,
             helperEntryId: null,
-            forbiddenEntryId: null
+            forbiddenEntryId: null,
+            uploadId: null
         };
     }
 
@@ -70,6 +71,10 @@ class TestRunner {
     async setupEnvironment() {
         this.log("Setting up Environment...", 'header');
 
+        // Upload a Test File (Text file, ~12 bytes)
+        this.state.uploadId = await this.uploadTestFile("test_sample.txt", "Hello World!");
+        this.log(`Uploaded Test File (ID: ${this.state.uploadId})`, 'step');
+
         // Helper Scheme & Entry
         this.state.helperId = await this.createScheme(`Helper_${this.uid}`);
         await this.addField(this.state.helperId, { key: "val", type: "STRING", required: true, "is-array": false });
@@ -96,7 +101,15 @@ class TestRunner {
             { key: "b_bool", type: "BOOLEAN", required: true, rules: {} },
             { key: "ref", type: "ENTRIES", required: true, rules: { "schemes": [this.state.helperId] } },
             { key: "arr_str", type: "STRING", required: true, "is-array": true, rules: { "min-length": 2, "max-length": 3 } },
-            { key: "opt", type: "STRING", required: false, rules: {} }
+            { key: "opt", type: "STRING", required: false, rules: {} },
+
+            // --- NEW UPLOAD FIELDS ---
+            // Allows text/plain, size compatible with "Hello World!" (12 bytes)
+            { key: "u_valid", type: "UPLOADS", required: true, rules: { "mimetypes": ["text/plain"], "max-size": 100 } },
+            // Fails on MIME (expects image)
+            { key: "u_bad_mime", type: "UPLOADS", required: false, rules: { "mimetypes": ["image/png", "image/jpeg"] } },
+            // Fails on Min Size (requires > 1000 bytes)
+            { key: "u_bad_size", type: "UPLOADS", required: false, rules: { "min-size": 1000 } }
         ];
 
         for (const f of fields) {
@@ -113,7 +126,8 @@ class TestRunner {
      * Optionally deletes each successful entry immediately if cleanup is enabled.
      */
     async runTests() {
-        const testCases = getTestCases(this.state.helperEntryId, this.state.forbiddenEntryId);
+        // Pass the uploadId to the data generator
+        const testCases = getTestCases(this.state.helperEntryId, this.state.forbiddenEntryId, this.state.uploadId);
         let passed = 0;
 
         for (let i = 0; i < testCases.length; i++) {
@@ -145,7 +159,6 @@ class TestRunner {
                 this.log(`${test.l} | ${msg}`, 'fail');
             }
 
-            // Prevent DB pollution when running with cleanup enabled
             if (this.ui.cleanup.checked && success && res.data?.id) {
                 await this.api('/entries-remove', 'DELETE', { entryId: res.data.id });
             }
@@ -162,29 +175,32 @@ class TestRunner {
     async cleanup() {
         this.log("Cleaning up Schemes...", 'header');
 
-        if (this.state.masterId) {
-            await this.api('/schemes-remove', 'DELETE', { schemeID: this.state.masterId });
-            this.log(`Removed Master Scheme (ID: ${this.state.masterId})`, 'step');
-        }
+        if (this.state.masterId) await this.api('/schemes-remove', 'DELETE', { schemeID: this.state.masterId });
+        if (this.state.helperId) await this.api('/schemes-remove', 'DELETE', { schemeID: this.state.helperId });
+        if (this.state.forbiddenId) await this.api('/schemes-remove', 'DELETE', { schemeID: this.state.forbiddenId });
 
-        if (this.state.helperId) {
-            await this.api('/schemes-remove', 'DELETE', { schemeID: this.state.helperId });
-            this.log(`Removed Helper Scheme (ID: ${this.state.helperId})`, 'step');
-        }
-
-        if (this.state.forbiddenId) {
-            await this.api('/schemes-remove', 'DELETE', { schemeID: this.state.forbiddenId });
-            this.log(`Removed Forbidden Scheme (ID: ${this.state.forbiddenId})`, 'step');
+        // Cleanup File
+        if (this.state.uploadId) {
+            await this.api('/uploads-remove', 'DELETE', { fileId: this.state.uploadId });
+            this.log(`Removed Test File (ID: ${this.state.uploadId})`, 'step');
         }
     }
 
     // --- API & Utils ---
 
-    /**
-     * Creates a scheme and returns its ID. Throws on failure.
-     * @param {string} name
-     * @returns {Promise<number>}
-     */
+    async uploadTestFile(filename, content) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const formData = new FormData();
+        formData.append('file', blob, filename);
+        formData.append('name', filename);
+        formData.append('access', JSON.stringify(["ADMIN"]));
+
+        // We use the generic API method but pass FormData directly
+        const res = await this.api('/uploads-store', 'POST', formData);
+        if (res.status !== 'success') throw new Error(`Failed to upload test file: ${res.message}`);
+        return res.data.id;
+    }
+
     async createScheme(name) {
         const res = await this.api('/schemes-create', 'POST', { name });
         if (res.status !== 'success') throw new Error(`Failed to create scheme ${name}: ${res.message}`);
@@ -218,14 +234,23 @@ class TestRunner {
      */
     async api(endpoint, method, body = null) {
         const session = auth.get();
+        const headers = {
+            'Authorization': `Bearer ${session.token}`
+        };
+
+        // Important: If body is FormData, do NOT set Content-Type (browser does it with boundary)
+        // If body is object, stringify and set JSON
+        let payload = body;
+        if (body && !(body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+            payload = JSON.stringify(body);
+        }
+
         try {
             const res = await fetch('../api' + endpoint, {
                 method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.token}`
-                },
-                body: body ? JSON.stringify(body) : null
+                headers: headers,
+                body: payload
             });
 
             if (res.status === 401) {
@@ -236,7 +261,7 @@ class TestRunner {
             try {
                 return JSON.parse(text);
             } catch (e) {
-                return { status: 'error', message: `Invalid JSON response from ${endpoint}. Response : ${text}` };
+                return { status: 'error', message: `Invalid JSON response from ${endpoint}. Response: ${text}` };
             }
         } catch (e) {
             return { status: 'error', message: 'Network Error' };

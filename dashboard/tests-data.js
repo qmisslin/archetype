@@ -2,12 +2,14 @@
  * Generates the list of test cases based on dynamic environment IDs.
  * @param {number} helperEntryId - ID of a valid entry in the Helper scheme
  * @param {number} forbiddenEntryId - ID of an entry in the Forbidden scheme
+ * @param {number} uploadId - ID of the uploaded test file (text/plain, ~12 bytes)
  */
-function getTestCases(helperEntryId, forbiddenEntryId) {
+function getTestCases(helperEntryId, forbiddenEntryId, uploadId) {
     // Base valid payload ("Golden Sample")
     const valid = {
         s_len: "abc", s_enum: "A", s_reg: "123", s_hex: "#FFFFFF", s_json: "{\"a\":1}", s_html: "<b>ok</b>",
-        n_int: 15, n_float: 10.5, b_bool: true, ref: helperEntryId, arr_str: ["t1", "t2"], opt: "opt"
+        n_int: 15, n_float: 10.5, b_bool: true, ref: helperEntryId, arr_str: ["t1", "t2"], opt: "opt",
+        u_valid: uploadId
     };
 
     return [
@@ -121,6 +123,13 @@ function getTestCases(helperEntryId, forbiddenEntryId) {
                 s_json: JSON.stringify(Array(100).fill("data")),
                 s_html: "<div>" + "p".repeat(1000) + "</div>"
             }
-        }
+        },
+
+        // --- UPLOADS VALIDATION ---
+        { l: "Up: Valid ID & Type", exp: true, d: { ...valid, u_valid: uploadId } },
+        { l: "Up: Non-existent ID", exp: false, d: { ...valid, u_valid: 999999 } },
+        { l: "Up: Null on Required", exp: false, d: { ...valid, u_valid: null } },
+        { l: "Up: Invalid Mime Type (Text vs Img)", exp: false, d: { ...valid, u_bad_mime: uploadId } },
+        { l: "Up: Invalid Size (Too small)", exp: false, d: { ...valid, u_bad_size: uploadId } }
     ];
 }
