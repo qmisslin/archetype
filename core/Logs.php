@@ -25,13 +25,15 @@ class Logs
 
         // Get most recent entry from DB
         $db = Database::get();
-        $stmt = $db->query("SELECT id, logfile FROM LOGS ORDER BY timestamp DESC LIMIT 1");
+        $stmt = $db->query("SELECT id, logfile FROM LOGS ORDER BY id DESC LIMIT 1");
         $lastLog = $stmt->fetch();
 
         // Check file existence and size
         if ($lastLog) {
             $filePath = $dir . $lastLog['logfile'];
             if (file_exists($filePath)) {
+                clearstatcache(true, $filePath);
+                
                 if (filesize($filePath) < self::MAX_FILE_SIZE) {
                     self::$currentLogId = (int)$lastLog['id'];
                     self::$currentLogFile = $lastLog['logfile'];
