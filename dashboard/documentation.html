@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Archetype - API Documentation</title>
+        <link rel="stylesheet" href="style.css">
+        <style>
+            .doc-card {
+                background: #fff;
+                border: 1px solid #000;
+                margin-bottom: 20px;
+                padding: 15px;
+                box-shadow: 4px 4px 0px #eee;
+            }
+
+            .doc-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+            }
+
+            .doc-title {
+                font-family: monospace;
+                font-weight: bold;
+                font-size: 1.1em;
+            }
+
+            .badges {
+                display: flex;
+                gap: 5px;
+            }
+
+            .badge {
+                padding: 2px 6px;
+                font-size: 0.75em;
+                font-weight: bold;
+                text-transform: uppercase;
+                border: 1px solid #000;
+            }
+
+            .badge-GET {
+                background: #e6fcf5;
+                color: #0ca678;
+                border-color: #0ca678;
+            }
+
+            .badge-POST {
+                background: #e7f5ff;
+                color: #1c7ed6;
+                border-color: #1c7ed6;
+            }
+
+            .badge-PATCH {
+                background: #fff9db;
+                color: #f59f00;
+                border-color: #f59f00;
+            }
+
+            .badge-DELETE {
+                background: #fff5f5;
+                color: #fa5252;
+                border-color: #fa5252;
+            }
+
+            .badge-ADMIN {
+                background: #000;
+                color: #fff;
+            }
+
+            .badge-EDITOR {
+                background: #555;
+                color: #fff;
+            }
+
+            .badge-PUBLIC {
+                background: #fff;
+                color: #000;
+                border-style: dashed;
+            }
+
+            .doc-desc {
+                color: #555;
+                margin-bottom: 15px;
+                font-style: italic;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.9em;
+                margin-top: 10px;
+            }
+
+            th {
+                text-align: left;
+                border-bottom: 2px solid #000;
+                padding: 5px;
+            }
+
+            td {
+                border-bottom: 1px solid #eee;
+                padding: 5px;
+                vertical-align: top;
+            }
+
+            .param-name {
+                font-family: monospace;
+                font-weight: bold;
+            }
+
+            .param-type {
+                color: #888;
+                font-size: 0.85em;
+            }
+
+            .req {
+                color: #f00;
+                font-weight: bold;
+            }
+
+            .section-label {
+                font-weight: bold;
+                text-transform: uppercase;
+                font-size: 0.8em;
+                margin-top: 15px;
+                margin-bottom: 5px;
+                border-bottom: 1px solid #000;
+                display: inline-block;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <a href="../dashboard.php" class="back-link">← BACK</a>
+            <div id="session-info" class="user-info">Live API Docs</div>
+        </header>
+
+        <h2>API Reference</h2>
+        <div id="loading">Scanning API endpoints...</div>
+        <div id="doc-container"></div>
+
+        <script src="auth.js"></script>
+        <script>
+            // List of all endpoints to scan
+            const endpoints = [
+                // Auth & Users
+                'user-create-admin-user', 'user-login', 'user-forgot-password', 'user-change-password',
+                // Email
+                'email-send',
+                // Logs
+                'logs-message', 'logs-get', 'logs-range', 'logs-compute', 'logs-download', 'logs-remove', 'logs-purge',
+                // Schemes
+                'schemes-list', 'schemes-get', 'schemes-create', 'schemes-rename', 'schemes-remove',
+                'schemes-add-field', 'schemes-remove-field', 'schemes-update-field', 'schemes-rekey-field', 'schemes-index-field',
+                // Entries
+                'entries-list', 'entries-get-by-id', 'entries-search', 'entries-create', 'entries-edit', 'entries-duplicate', 'entries-remove',
+                // Uploads
+                'uploads-list', 'uploads-create', 'uploads-store', 'uploads-replace', 'uploads-edit', 'uploads-remove', 'uploads-get',
+                // Trackers
+                'trackers-list', 'trackers-create', 'trackers-edit', 'trackers-delete'
+            ];
+
+            async function fetchDoc(name) {
+                try {
+                    const res = await fetch(`../api/${name}.php?help`);
+                    const json = await res.json();
+                    if (json.status === 'success' && json.data.documentation) {
+                        return { name, ...json.data.documentation };
+                    }
+                } catch (e) {
+                    console.warn(`Failed to fetch doc for ${name}`, e);
+                }
+                return null;
+            }
+
+            function renderDoc(doc) {
+                const container = document.getElementById('doc-container');
+
+                const roles = doc.role.split(',').map(r => r.trim());
+                const roleBadges = roles.map(r => `<span class="badge badge-${r}">${r}</span>`).join('');
+
+                let paramsHtml = '';
+                if (doc.params && Object.keys(doc.params).length > 0) {
+                    paramsHtml = `
+                    <div class="section-label">Parameters</div>
+                    <table>
+                        <thead><tr><th>Key</th><th>Type</th><th>Req</th><th>Description</th></tr></thead>
+                        <tbody>
+                            ${Object.entries(doc.params).map(([key, p]) => `
+                                <tr>
+                                    <td class="param-name">${key}</td>
+                                    <td><span class="param-type">${p.type}</span></td>
+                                    <td>${p.required ? '<span class="req">*</span>' : ''}</td>
+                                    <td>
+                                        ${p.desc || ''} 
+                                        ${p.default ? `<br><small style="color:#666">Default: ${p.default}</small>` : ''}
+                                        ${p.values ? `<br><small>Allowed: [${p.values.join(', ')}]</small>` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>`;
+                }
+
+                let returnsHtml = '';
+                if (doc.returns) {
+                    const jsonStr = JSON.stringify(doc.returns, null, 2);
+                    returnsHtml = `
+                    <div class="section-label">Returns</div>
+                    <pre style="background:#f9f9f9; padding:10px; font-size:0.85em;">${jsonStr}</pre>
+                `;
+                }
+
+                const html = `
+                <div class="doc-card">
+                    <div class="doc-header">
+                        <div class="doc-title">/api/${doc.name}</div>
+                        <div class="badges">
+                            <span class="badge badge-${doc.method}">${doc.method}</span>
+                            ${roleBadges}
+                        </div>
+                    </div>
+                    <div class="doc-desc">${doc.description}</div>
+                    ${paramsHtml}
+                    ${returnsHtml}
+                </div>
+            `;
+
+                container.insertAdjacentHTML('beforeend', html);
+            }
+
+            document.addEventListener('DOMContentLoaded', async () => {
+                const promises = endpoints.map(name => fetchDoc(name));
+                const results = await Promise.all(promises);
+
+                document.getElementById('loading').style.display = 'none';
+
+                // Filter nulls and render
+                results.filter(r => r).forEach(renderDoc);
+            });
+        </script>
+    </body>
+
+</html>
