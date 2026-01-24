@@ -14,7 +14,7 @@ header('Content-Type: text/html; charset=utf-8');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archetype - System Diagnostic</title>
-    <link rel="stylesheet" href="./public/style.css">
+    <link rel="stylesheet" href="./dashboard/style.css">
     <style>
         body { font-size: 0.9em; }
         .diag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
@@ -104,7 +104,7 @@ header('Content-Type: text/html; charset=utf-8');
         </section>
     </div>
 
-    <script src="./public/auth.js"></script>
+    <script src="./dashboard/auth.js"></script>
     <script>
         const v = (id) => document.getElementById(id);
 
